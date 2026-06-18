@@ -1,0 +1,32 @@
+[
+  {
+    "title": "Ai Circuit Builder",
+    "category": "aiml",
+    "path": "projects/aiml/ai-circuit-builder"
+  },
+  {
+    "title": "Attendance Tracker",
+    "category": "productivity",
+    "path": "projects/productivity/attendance-tracker"
+  },
+  {
+    "title": "Chess",
+    "category": "games",
+    "path": "projects/games/chess"
+  },
+  {
+    "title": "Cpu Emulator",
+    "category": "dev-tools",
+    "path": "projects/dev-tools/cpu-emulator"
+  },
+  {
+    "title": "Image Classifier",
+    "category": "aiml",
+    "path": "projects/aiml/image-classifier"
+  },
+  {
+    "title": "Neural Network Playground",
+    "category": "aiml",
+    "path": "projects/aiml/neural-network-playground"
+  }
+]

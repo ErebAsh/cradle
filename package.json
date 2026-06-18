@@ -1,0 +1,19 @@
+{
+  "name": "cradle",
+  "version": "1.0.0",
+  "description": "A personal collection of small ideas, experiments, and geeky projects.",
+  "main": "script.js",
+  "scripts": {
+    "generate": "node scripts/generate-projects.js",
+    "test": "echo \"Error: no test specified\" && exit 1",
+    "dev": "npm run generate && live-server",
+    "build": "npm run generate"
+  },
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/Facelessism/cradle.git"
+  },
+  "keywords": [],
+  "author": "",
+  "license": "ISC"
+}
