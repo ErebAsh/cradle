@@ -1,0 +1,66 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+
+  <title>Cradle</title>
+
+  <meta
+    name="description"
+    content="Cradle — A curated archive of experiments."
+  />
+
+  <link rel="stylesheet" href="style.css" />
+</head>
+<body>
+  <header class="hero">
+    <h1>Cradle</h1>
+
+    <p class="hero-tagline">
+      A curated archive of experiments...
+    </p>
+
+    <div class="search-container">
+      <input
+        type="text"
+        id="search"
+        placeholder="Search projects..."
+        autocomplete="off"
+      />
+    </div>
+  </header>
+
+  <main>
+    <section id="categories"></section>
+
+    <section>
+      <div class="section-header">
+        <h2>Projects</h2>
+        <span id="project-count">0 projects</span>
+      </div>
+
+      <div
+        id="projects-grid"
+        class="projects-grid"
+      ></div>
+    </section>
+  </main>
+
+  <footer>
+    <p>
+      Enjoying Cradle?
+      <a
+        href="https://github.com/Facelessism/cradle"
+        target="_blank"
+        rel="noopener noreferrer"
+        class="footer-link"
+      >
+        ★ Star the repository on GitHub
+      </a>
+    </p>
+  </footer>
+
+  <script src="script.js"></script>
+</body>
+</html>
