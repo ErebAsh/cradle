@@ -693,3 +693,52 @@ input[type="range"]::-webkit-slider-thumb {
 .training-active .btn-primary {
   animation: pulse-glow 1.5s ease-in-out infinite;
 }
+
+/* --- CSV Custom Dataset styles --- */
+.error-container {
+  background: rgba(239, 83, 80, 0.08);
+  border: 1px solid rgba(239, 83, 80, 0.25);
+  border-radius: var(--radius-sm);
+  padding: 8px 10px;
+  color: var(--danger);
+  font-size: 0.75rem;
+  margin-top: 10px;
+  display: flex;
+  align-items: flex-start;
+  gap: 8px;
+  line-height: 1.35;
+}
+.error-container i {
+  margin-top: 2px;
+  flex-shrink: 0;
+}
+
+.success-container {
+  background: rgba(102, 187, 106, 0.08);
+  border: 1px solid rgba(102, 187, 106, 0.25);
+  border-radius: var(--radius-sm);
+  padding: 8px 10px;
+  color: var(--success);
+  font-size: 0.75rem;
+  margin-top: 10px;
+  display: flex;
+  align-items: flex-start;
+  gap: 8px;
+  line-height: 1.35;
+}
+.success-container i {
+  margin-top: 2px;
+  flex-shrink: 0;
+}
+
+.disabled-row {
+  opacity: 0.35;
+  pointer-events: none;
+  transition: opacity var(--transition-normal);
+}
+
+.disabled-btn {
+  opacity: 0.35;
+  pointer-events: none;
+  transition: opacity var(--transition-normal);
+}

@@ -243,6 +243,152 @@ class NeuralNetwork {
   }
 }
 
+// ── CSV Parsing, Validation, and Normalization ───────────────
+function parseAndValidateCSV(text) {
+  const lines = text.split(/\r?\n/);
+  const rows = [];
+  
+  const nonEmptyLines = lines
+    .map(line => line.trim())
+    .filter(line => line.length > 0);
+  
+  if (nonEmptyLines.length === 0) {
+    throw new Error("The uploaded file is empty.");
+  }
+  
+  // Detect delimiter
+  const firstLine = nonEmptyLines[0];
+  let delimiter = ',';
+  const commaCount = (firstLine.match(/,/g) || []).length;
+  const semiCount = (firstLine.match(/;/g) || []).length;
+  const tabCount = (firstLine.match(/\t/g) || []).length;
+  
+  if (semiCount > commaCount && semiCount > tabCount) {
+    delimiter = ';';
+  } else if (tabCount > commaCount && tabCount > semiCount) {
+    delimiter = '\t';
+  }
+  
+  const firstLineParts = firstLine.split(delimiter).map(p => p.trim());
+  // Remove trailing empty elements
+  while (firstLineParts.length > 3 && firstLineParts[firstLineParts.length - 1] === "") {
+    firstLineParts.pop();
+  }
+  
+  const isFirstLineNumeric = 
+    firstLineParts.length === 3 &&
+    !isNaN(parseFloat(firstLineParts[0])) &&
+    !isNaN(parseFloat(firstLineParts[1])) &&
+    (firstLineParts[2] === "0" || firstLineParts[2] === "1" || parseFloat(firstLineParts[2]) === 0 || parseFloat(firstLineParts[2]) === 1);
+    
+  let startIndex = 0;
+  if (!isFirstLineNumeric) {
+    if (firstLineParts.length !== 3) {
+      throw new Error(`Uneven column counts detected. Each row must have exactly 3 columns (feature_1, feature_2, class_label). Found ${firstLineParts.length} columns.`);
+    }
+    startIndex = 1;
+  }
+  
+  const dataLines = nonEmptyLines.slice(startIndex);
+  if (dataLines.length === 0) {
+    throw new Error("File contains fewer than two valid samples.");
+  }
+  
+  for (let i = 0; i < dataLines.length; i++) {
+    const lineNum = startIndex + i + 1;
+    const parts = dataLines[i].split(delimiter).map(p => p.trim());
+    
+    // Remove trailing empty elements
+    while (parts.length > 3 && parts[parts.length - 1] === "") {
+      parts.pop();
+    }
+    
+    if (parts.length !== 3) {
+      throw new Error(`Uneven column count at line ${lineNum}: expected 3 columns, found ${parts.length}.`);
+    }
+    
+    if (parts[0] === "" || parts[1] === "" || parts[2] === "") {
+      throw new Error(`Missing value at line ${lineNum}.`);
+    }
+    
+    const f1 = parseFloat(parts[0]);
+    const f2 = parseFloat(parts[1]);
+    
+    if (isNaN(f1) || !isFinite(f1)) {
+      throw new Error(`Non-numeric feature value "${parts[0]}" at line ${lineNum}, column 1.`);
+    }
+    if (isNaN(f2) || !isFinite(f2)) {
+      throw new Error(`Non-numeric feature value "${parts[1]}" at line ${lineNum}, column 2.`);
+    }
+    
+    const labelVal = parseFloat(parts[2]);
+    if (isNaN(labelVal) || (labelVal !== 0 && labelVal !== 1)) {
+      throw new Error(`Invalid class label "${parts[2]}" at line ${lineNum}. Class label must be 0 or 1.`);
+    }
+    
+    rows.push([f1, f2, labelVal]);
+  }
+  
+  if (rows.length < 2) {
+    throw new Error("File contains fewer than two valid samples.");
+  }
+  
+  return rows;
+}
+
+function normalizeDataset(pts) {
+  let minX = Infinity,
+    maxX = -Infinity,
+    minY = Infinity,
+    maxY = -Infinity;
+  pts.forEach((p) => {
+    minX = Math.min(minX, p[0]);
+    maxX = Math.max(maxX, p[0]);
+    minY = Math.min(minY, p[1]);
+    maxY = Math.max(maxY, p[1]);
+  });
+  const rx = maxX - minX || 1;
+  const ry = maxY - minY || 1;
+  
+  return pts.map((p) => [
+    ((p[0] - minX) / rx) * 2 - 1,
+    ((p[1] - minY) / ry) * 2 - 1,
+    p[2],
+  ]);
+}
+
+function showCSVError(message) {
+  $("csvErrorMessage").textContent = message;
+  $("csvErrorContainer").style.display = "flex";
+  $("csvSuccessContainer").style.display = "none";
+}
+
+function showCSVSuccess(message) {
+  $("csvSuccessMessage").textContent = message;
+  $("csvSuccessContainer").style.display = "flex";
+  $("csvErrorContainer").style.display = "none";
+}
+
+function updateControlDisabling() {
+  const isCustom = (state.dataset === "custom");
+  $("noiseSlider").disabled = isCustom;
+  $("pointsSlider").disabled = isCustom;
+  $("btnRegenData").disabled = isCustom;
+  
+  const noiseRow = $("noiseSlider").closest(".form-row");
+  const pointsRow = $("pointsSlider").closest(".form-row");
+  
+  if (isCustom) {
+    noiseRow.classList.add("disabled-row");
+    pointsRow.classList.add("disabled-row");
+    $("btnRegenData").classList.add("disabled-btn");
+  } else {
+    noiseRow.classList.remove("disabled-row");
+    pointsRow.classList.remove("disabled-row");
+    $("btnRegenData").classList.remove("disabled-btn");
+  }
+}
+
 // ── APP STATE ────────────────────────────────────────────────
 const state = {
   dataset: "circle",
@@ -257,6 +403,7 @@ const state = {
   epoch: 0,
   lossHistory: [],
   data: [],
+  customData: [], // parsed & normalized custom dataset
   net: null,
   animId: null,
   showData: true,
@@ -286,7 +433,11 @@ function initNetwork() {
 }
 
 function initData() {
-  state.data = generateDataset(state.dataset, state.numPoints, state.noise);
+  if (state.dataset === "custom") {
+    state.data = state.customData.map((p) => [...p]);
+  } else {
+    state.data = generateDataset(state.dataset, state.numPoints, state.noise);
+  }
 }
 
 function updateStats(epoch, loss, acc) {
@@ -617,14 +768,80 @@ function setupEvents() {
   // Dataset
   document.querySelectorAll(".dataset-btn").forEach((btn) => {
     btn.addEventListener("click", () => {
+      const targetDataset = btn.dataset.dataset;
+      
+      if (targetDataset === "custom") {
+        if (!state.customData || state.customData.length === 0) {
+          $("csvFileInput").click();
+          return;
+        } else if (state.dataset === "custom") {
+          $("csvFileInput").click();
+          return;
+        }
+      }
+      
       document
         .querySelectorAll(".dataset-btn")
         .forEach((b) => b.classList.remove("active"));
       btn.classList.add("active");
-      state.dataset = btn.dataset.dataset;
+      state.dataset = targetDataset;
       initData();
+      updateControlDisabling();
       resetAll();
     });
+  });
+
+  // CSV File Upload
+  $("csvFileInput").addEventListener("change", (e) => {
+    const file = e.target.files[0];
+    if (!file) return;
+
+    $("csvErrorContainer").style.display = "none";
+    $("csvSuccessContainer").style.display = "none";
+
+    if (!file.name.toLowerCase().endsWith(".csv")) {
+      showCSVError("Unsupported file type. Please upload a .csv file.");
+      e.target.value = "";
+      return;
+    }
+
+    const reader = new FileReader();
+    reader.onload = (evt) => {
+      try {
+        const text = evt.target.result;
+        const parsedRows = parseAndValidateCSV(text);
+        const normalizedRows = normalizeDataset(parsedRows);
+
+        state.customData = normalizedRows;
+        state.dataset = "custom";
+
+        document.querySelectorAll(".dataset-btn").forEach((btn) => {
+          if (btn.dataset.dataset === "custom") {
+            btn.classList.add("active");
+            const label = btn.querySelector("span");
+            if (label) {
+              const displayName = file.name.length > 12 ? file.name.slice(0, 9) + "..." : file.name;
+              label.textContent = displayName;
+            }
+          } else {
+            btn.classList.remove("active");
+          }
+        });
+
+        showCSVSuccess(`Loaded: ${file.name} (${parsedRows.length} points)`);
+        initData();
+        updateControlDisabling();
+        resetAll();
+      } catch (err) {
+        showCSVError(err.message);
+      }
+      e.target.value = "";
+    };
+    reader.onerror = () => {
+      showCSVError("Failed to read the file.");
+      e.target.value = "";
+    };
+    reader.readAsText(file);
   });
 
   // Noise & Points
@@ -705,5 +922,6 @@ document.addEventListener("DOMContentLoaded", () => {
   initNetwork();
   renderLayerUI();
   setupEvents();
+  updateControlDisabling();
   renderAll();
 });

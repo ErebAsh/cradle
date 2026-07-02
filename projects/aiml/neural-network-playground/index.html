@@ -166,6 +166,36 @@
               </svg>
               <span>Moons</span>
             </button>
+            <button
+              class="dataset-btn"
+              data-dataset="custom"
+              id="btnCustomDataset"
+              title="Custom CSV"
+            >
+              <svg viewBox="0 0 40 40">
+                <path
+                  d="M12 28 H28 M20 12 V24 M15 17 L20 12 L25 17"
+                  fill="none"
+                  stroke="currentColor"
+                  stroke-width="2"
+                  stroke-linecap="round"
+                  stroke-linejoin="round"
+                />
+              </svg>
+              <span>Custom CSV</span>
+            </button>
+          </div>
+          <!-- CSV Upload Status and Hidden File Input -->
+          <div class="csv-status-area" style="margin-top: 10px;">
+            <input type="file" id="csvFileInput" accept=".csv" style="display: none;" />
+            <div id="csvErrorContainer" class="error-container" style="display: none;">
+              <i aria-hidden="true" class="fas fa-exclamation-circle"></i>
+              <span id="csvErrorMessage"></span>
+            </div>
+            <div id="csvSuccessContainer" class="success-container" style="display: none;">
+              <i aria-hidden="true" class="fas fa-check-circle"></i>
+              <span id="csvSuccessMessage"></span>
+            </div>
           </div>
           <div class="form-row">
             <label>Noise</label>
@@ -312,6 +342,6 @@
       >
     </footer>
 
-    <script src="script.js"></script>
+    <script src="script.js?v=1.0.1"></script>
   </body>
 </html>
