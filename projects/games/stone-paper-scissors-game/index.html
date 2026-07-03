@@ -1,0 +1,84 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<title>RPS Arena | Rock Paper Scissors</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link href="https://fonts.googleapis.com/css2?family=Orbitron:wght@600;800&family=Rajdhani:wght@500;600;700&display=swap" rel="stylesheet">
+<link rel="stylesheet" href="style.css">
+</head>
+<body>
+
+  <!-- NAVBAR -->
+  <nav class="navbar">
+    <div class="logo">⚔️ RPS <span>ARENA</span></div>
+    <ul class="nav-links">
+      <li><a href="#game">Play</a></li>
+      <li><a href="#how">How To Play</a></li>
+      <li><a href="#footer">About</a></li>
+    </ul>
+  </nav>
+
+  <!-- MAIN GAME -->
+  <main id="game">
+    <div class="glow-orb orb1"></div>
+    <div class="glow-orb orb2"></div>
+
+    <div class="game-box">
+      <h1 class="title">BATTLE <span>ARENA</span></h1>
+      <p class="subtitle">Choose your weapon and defeat the machine</p>
+
+      <div class="score-board">
+        <div class="score-card">
+          <span class="label">YOU</span>
+          <span class="score" id="playerScore">0</span>
+        </div>
+        <div class="score-card streak-card">
+          <span class="label">STREAK</span>
+          <span class="score" id="streakCount">0</span>
+        </div>
+        <div class="score-card">
+          <span class="label">CPU</span>
+          <span class="score" id="computerScore">0</span>
+        </div>
+      </div>
+
+      <div class="battle-arena" id="battleArena">
+        <div class="fighter" id="playerPick">❓</div>
+        <div class="vs-text" id="vsText">VS</div>
+        <div class="fighter" id="computerPick">❓</div>
+      </div>
+
+      <p class="result-text" id="resultText">Choose your weapon!</p>
+
+      <div class="choices" id="choices">
+        <button class="choice-btn" data-choice="rock">🪨<span>Rock</span></button>
+        <button class="choice-btn" data-choice="paper">📄<span>Paper</span></button>
+        <button class="choice-btn" data-choice="scissors">✂️<span>Scissors</span></button>
+      </div>
+
+      <button id="resetBtn">🔄 Reset Score</button>
+    </div>
+  </main>
+
+  <!-- HOW TO PLAY -->
+  <section id="how" class="how-section">
+    <h2>How To Play</h2>
+    <div class="how-cards">
+      <div class="how-card">🪨 <p>Rock crushes Scissors</p></div>
+      <div class="how-card">📄 <p>Paper covers Rock</p></div>
+      <div class="how-card">✂️ <p>Scissors cut Paper</p></div>
+    </div>
+  </section>
+
+  <!-- FOOTER -->
+  <footer id="footer">
+    <p>Built with 🔥 using HTML, CSS &amp; JavaScript</p>
+    <p class="footer-small">© 2026 RPS Arena — Fight fair, win fast.</p>
+  </footer>
+
+  <div class="confetti-container" id="confettiContainer"></div>
+
+  <script src="script.js"></script>
+</body>
+</html>
