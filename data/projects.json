@@ -43,5 +43,10 @@
     "title": "Memory Flip Game ",
     "category": "games",
     "path": "projects/games/memory-flip-game/"
+  },
+  {
+    "title": "Stone Paper Scissors Game ",
+    "category": "games",
+    "path": "projects/games/stone-paper-scissors-game/"
   }
 ]
