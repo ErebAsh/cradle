@@ -87,10 +87,14 @@ function resolveBoard() {
 }
 
 function explode(row, col, owner) {
-    state.board[row][col] = {
-        owner: null,
-        dots: 0
-    };
+    const cell = state.board[row][col];
+    const capacity = getCapacity(row, col);
+
+    cell.dots -= capacity;
+
+    if (cell.dots === 0) {
+        cell.owner = null;
+    }
 
     for (const [dr, dc] of [
         [-1, 0],
@@ -114,9 +118,43 @@ function explode(row, col, owner) {
 }
 
 function nextTurn() {
-    state.currentPlayer =
-        (state.currentPlayer + 1) %
-        state.players.length;
+    const cellCounts = {};
+    state.players.forEach((p, idx) => cellCounts[idx] = 0);
+
+    let totalCellsOccupied = 0;
+    for (let r = 0; r < boardSize; r++) {
+        for (let c = 0; c < boardSize; c++) {
+            const ownerColor = state.board[r][c].owner;
+            if (ownerColor !== null) {
+                const ownerIdx = state.players.indexOf(ownerColor);
+                if (ownerIdx !== -1) {
+                    cellCounts[ownerIdx]++;
+                    totalCellsOccupied++;
+                }
+            }
+        }
+    }
+
+    const isInitialRound = totalCellsOccupied <= state.players.length;
+
+    const activePlayerIndices = Object.keys(cellCounts).filter(idx => cellCounts[idx] > 0);
+    if (!isInitialRound && activePlayerIndices.length === 1) {
+        const winnerIdx = activePlayerIndices[0];
+        alert(`Game Over! Player ${state.players[winnerIdx].toUpperCase()} has won!`);
+        startGame();
+        return;
+    }
+
+    
+    let nextPlayer = state.currentPlayer;
+    do {
+        nextPlayer = (nextPlayer + 1) % state.players.length;
+        if (isInitialRound || cellCounts[nextPlayer] > 0) {
+            break;
+        }
+    } while (nextPlayer !== state.currentPlayer);
+
+    state.currentPlayer = nextPlayer;
 }
 
 function renderStats() {
