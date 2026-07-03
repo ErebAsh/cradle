@@ -55,14 +55,21 @@ body {
 #board {
     display: grid;
     gap: 1px;
-    width: fit-content;
+    width: 100%;
+    max-width: 500px;
     margin: auto;
+    background: #94a3b8;
+    border: 2px solid #64748b;
+    border-radius: 4px;
+    padding: 1px;
 }
 
 .cell {
-    width: 28px;
-    height: 28px;
-    border: 1px solid #e2e8f0;
+    aspect-ratio: 1;
+    width: 100%;
+    min-width: 28px;
+    background: #f1f5f9;
+    border: none;
 
     display: flex;
     justify-content: center;
@@ -128,4 +135,87 @@ body {
 .player-card.yellow {
     background: #eab308;
     color: black;
+}
+
+.analytics-section {
+    display: flex;
+    flex-direction: column;
+    gap: 12px;
+}
+
+.empty-state {
+    color: #64748b;
+    font-style: italic;
+}
+
+.analytics-card {
+    background: #f8fafc;
+    border: 1px solid #e2e8f0;
+    padding: 16px;
+    border-radius: 8px;
+    margin-bottom: 12px;
+}
+
+.analytics-card h3 {
+    margin-top: 0;
+    margin-bottom: 10px;
+    font-size: 16px;
+}
+
+.chart-bar {
+    display: flex;
+    align-items: center;
+    margin-bottom: 6px;
+}
+
+.chart-label {
+    width: 60px;
+    font-size: 14px;
+    font-weight: 600;
+    text-transform: capitalize;
+}
+
+.chart-bar-bg {
+    flex: 1;
+    background: #e2e8f0;
+    height: 12px;
+    border-radius: 6px;
+    overflow: hidden;
+    margin: 0 10px;
+}
+
+.chart-bar-fill {
+    height: 100%;
+    transition: width 0.3s ease;
+}
+
+.chart-value {
+    font-size: 12px;
+    width: 30px;
+    text-align: right;
+}
+
+.stats-grid {
+    display: grid;
+    grid-template-columns: repeat(auto-fill, minmax(150px, 1fr));
+    gap: 10px;
+    margin-bottom: 15px;
+}
+
+.stat-item {
+    background: #ffffff;
+    border: 1px solid #e2e8f0;
+    padding: 10px;
+    border-radius: 6px;
+}
+
+.stat-label {
+    font-size: 12px;
+    color: #64748b;
+    display: block;
+}
+
+.stat-val {
+    font-size: 18px;
+    font-weight: 700;
 }
