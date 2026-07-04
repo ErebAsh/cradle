@@ -1,0 +1,38 @@
+name: Mini Project Request
+description: Request or propose a new mini project for Cradle
+title: "[Project]: "
+labels: ["enhancement", "new project"]
+body:
+  - type: markdown
+    attributes:
+      value: |
+        Thanks for proposing a new mini project to add to the Cradle repository!
+        A project should include a short README, minimal dependencies, and a demo script if possible.
+  - type: textarea
+    id: goal
+    attributes:
+      label: Project Goal
+      description: Describe the goal or purpose of this mini project.
+    validations:
+      required: true
+  - type: textarea
+    id: idea
+    attributes:
+      label: Project Idea and Description
+      description: Provide details on what the project will do or demonstrate.
+    validations:
+      required: true
+  - type: textarea
+    id: dependencies
+    attributes:
+      label: Minimal Dependencies
+      description: What dependencies (e.g., Python packages, npm modules) will this project need?
+    validations:
+      required: false
+  - type: textarea
+    id: usage
+    attributes:
+      label: Example Usage
+      description: How will a user interact with or run this project?
+    validations:
+      required: true

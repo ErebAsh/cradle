@@ -1,0 +1,23 @@
+name: Enhancement
+description: Suggest an improvement to existing functionality
+title: "[Enhancement]: "
+labels: ["enhancement"]
+body:
+  - type: markdown
+    attributes:
+      value: |
+        Thanks for suggesting an enhancement!
+  - type: textarea
+    id: description
+    attributes:
+      label: Description of the enhancement
+      description: A clear and concise description of what you would like to be improved.
+    validations:
+      required: true
+  - type: textarea
+    id: benefits
+    attributes:
+      label: Expected Benefits
+      description: How does this enhancement improve the project or user experience?
+    validations:
+      required: true
