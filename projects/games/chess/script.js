@@ -19,6 +19,7 @@ let turn = WHITE;
 let selected = null;
 let legalTargets = [];
 let history = [];
+let redoStack = [];
 let capturedByWhite = [];
 let capturedByBlack = [];
 let flipped = false;
@@ -83,7 +84,25 @@ function updatePanels() {
     whiteCaptures.innerHTML = capturedByWhite.length ? capturedByWhite.map(piece => SYMBOLS[piece.color][piece.type]).join(" ") : "None";
     blackCaptures.innerHTML = capturedByBlack.length ? capturedByBlack.map(piece => SYMBOLS[piece.color][piece.type]).join(" ") : "None";
     moveCount.textContent = history.length;
-    moveList.innerHTML = history.map((entry, index) => `<li>${index + 1}. ${entry.notation}</li>`).join("");
+
+    let moveHtml = "";
+    for (let i = 0; i < history.length; i += 2) {
+        const whiteMove = history[i].notation;
+        const blackMove = history[i + 1] ? history[i + 1].notation : "";
+        
+        moveHtml += `<li>`;
+        moveHtml += `<span class="move-item ${i === history.length - 1 ? 'active-move' : ''}">${whiteMove}</span>`;
+        if (blackMove) {
+            moveHtml += ` <span class="move-item ${i + 1 === history.length - 1 ? 'active-move' : ''}">${blackMove}</span>`;
+        }
+        moveHtml += `</li>`;
+    }
+    moveList.innerHTML = moveHtml;
+
+    const undoBtn = document.getElementById("undoMove");
+    const redoBtn = document.getElementById("redoMove");
+    if (undoBtn) undoBtn.disabled = history.length === 0;
+    if (redoBtn) redoBtn.disabled = redoStack.length === 0;
 }
 
 function handleSquareClick(row, col) {
@@ -152,6 +171,8 @@ function makeMove(move) {
     legalTargets = [];
     previous.notation += stateSuffix();
     history.push(previous);
+    redoStack = [];
+
     updateGameState();
     render();
 }
@@ -238,23 +259,125 @@ function cancelAI() {
 
 function undoMove() {
     cancelAI();
-    const previous = history.pop();
+    const isComputerMode = document.getElementById("gameMode").value === "computer";
+
+    let previous = history.pop();
     if (!previous) {
         setStatus("No moves to undo.");
         return;
     }
+
+    let currentState = {
+        board: cloneBoard(board),
+        turn,
+        capturedByWhite: capturedByWhite.map(piece => ({ ...piece })),
+        capturedByBlack: capturedByBlack.map(piece => ({ ...piece })),
+        enPassantTarget: enPassantTarget ? { ...enPassantTarget } : null,
+        notation: previous.notation
+    };
+    redoStack.push(currentState);
 
     board = cloneBoard(previous.board);
     turn = previous.turn;
     capturedByWhite = previous.capturedByWhite.map(piece => ({ ...piece }));
     capturedByBlack = previous.capturedByBlack.map(piece => ({ ...piece }));
     enPassantTarget = previous.enPassantTarget ? { ...previous.enPassantTarget } : null;
+
+    if (isComputerMode && turn === BLACK && history.length > 0) {
+        previous = history.pop();
+        
+        currentState = {
+            board: cloneBoard(board),
+            turn,
+            capturedByWhite: capturedByWhite.map(piece => ({ ...piece })),
+            capturedByBlack: capturedByBlack.map(piece => ({ ...piece })),
+            enPassantTarget: enPassantTarget ? { ...enPassantTarget } : null,
+            notation: previous.notation
+        };
+        redoStack.push(currentState);
+        
+        board = cloneBoard(previous.board);
+        turn = previous.turn;
+        capturedByWhite = previous.capturedByWhite.map(piece => ({ ...piece }));
+        capturedByBlack = previous.capturedByBlack.map(piece => ({ ...piece }));
+        enPassantTarget = previous.enPassantTarget ? { ...previous.enPassantTarget } : null;
+    }
+
     selected = null;
     legalTargets = [];
     gameOver = false;
-    setStatus(`${capitalize(turn)} to move.`);
+    updateGameState();
     render();
-    checkTriggerAI();
+}
+
+function redoMove() {
+    cancelAI();
+    const isComputerMode = document.getElementById("gameMode").value === "computer";
+
+    let next = redoStack.pop();
+    if (!next) return;
+
+    let previous = {
+        board: cloneBoard(board),
+        turn,
+        capturedByWhite: capturedByWhite.map(piece => ({ ...piece })),
+        capturedByBlack: capturedByBlack.map(piece => ({ ...piece })),
+        enPassantTarget: enPassantTarget ? { ...enPassantTarget } : null,
+        notation: next.notation
+    };
+    history.push(previous);
+
+    board = cloneBoard(next.board);
+    turn = next.turn;
+    capturedByWhite = next.capturedByWhite.map(piece => ({ ...piece }));
+    capturedByBlack = next.capturedByBlack.map(piece => ({ ...piece }));
+    enPassantTarget = next.enPassantTarget ? { ...next.enPassantTarget } : null;
+
+    if (isComputerMode && turn === BLACK && redoStack.length > 0) {
+        next = redoStack.pop();
+        
+        previous = {
+            board: cloneBoard(board),
+            turn,
+            capturedByWhite: capturedByWhite.map(piece => ({ ...piece })),
+            capturedByBlack: capturedByBlack.map(piece => ({ ...piece })),
+            enPassantTarget: enPassantTarget ? { ...enPassantTarget } : null,
+            notation: next.notation
+        };
+        history.push(previous);
+
+        board = cloneBoard(next.board);
+        turn = next.turn;
+        capturedByWhite = next.capturedByWhite.map(piece => ({ ...piece }));
+        capturedByBlack = next.capturedByBlack.map(piece => ({ ...piece }));
+        enPassantTarget = next.enPassantTarget ? { ...next.enPassantTarget } : null;
+    }
+
+    selected = null;
+    legalTargets = [];
+    gameOver = false;
+    updateGameState();
+    render();
+}
+
+function generatePGN() {
+    let pgn = "";
+    for (let i = 0; i < history.length; i += 2) {
+        const turnNum = Math.floor(i / 2) + 1;
+        const whiteMove = history[i].notation;
+        const blackMove = history[i + 1] ? history[i + 1].notation : "";
+        pgn += `${turnNum}. ${whiteMove} ${blackMove} `.trim() + " ";
+    }
+    
+    let result = "*";
+    if (gameOver) {
+        const statusText = statusElement.textContent;
+        if (statusText.includes("White wins")) result = "1-0";
+        else if (statusText.includes("Black wins")) result = "0-1";
+        else result = "1/2-1/2";
+    }
+    
+    return pgn.trim() + " " + result;
 }
 
 function setStatus(text) {
@@ -272,6 +395,7 @@ function newGame() {
     selected = null;
     legalTargets = [];
     history = [];
+    redoStack = [];
     capturedByWhite = [];
     capturedByBlack = [];
     enPassantTarget = null;
@@ -283,6 +407,18 @@ function newGame() {
 
 document.getElementById("newGame").addEventListener("click", newGame);
 document.getElementById("undoMove").addEventListener("click", undoMove);
+document.getElementById("redoMove").addEventListener("click", redoMove);
+document.getElementById("copyPGN").addEventListener("click", () => {
+    const pgn = generatePGN();
+    navigator.clipboard.writeText(pgn).then(() => {
+        const btn = document.getElementById("copyPGN");
+        const originalText = btn.innerHTML;
+        btn.innerHTML = `<span aria-hidden="true">✅</span> Copied!`;
+        setTimeout(() => btn.innerHTML = originalText, 2000);
+    }).catch(() => {
+        alert("Failed to copy PGN.");
+    });
+});
 document.getElementById("flipBoard").addEventListener("click", () => {
     flipped = !flipped;
     render();

@@ -360,8 +360,15 @@ h1 {
     box-shadow: 0 2px 5px rgba(23, 32, 51, 0.08);
 }
 
-.controls button:hover {
+.controls button:hover:not(:disabled) {
     background: var(--accent-dark);
+}
+
+.controls button:disabled {
+    opacity: 0.5;
+    cursor: not-allowed;
+    background: var(--muted);
+    box-shadow: none;
 }
 
 .info-grid {
@@ -404,6 +411,22 @@ h1 {
 .move-list li::marker {
     color: var(--accent);
     font-weight: 900;
+}
+
+.move-item {
+    cursor: pointer;
+    padding: 2px 4px;
+    border-radius: 4px;
+    transition: background 150ms ease, color 150ms ease;
+}
+
+.move-item:hover {
+    background: rgba(23, 32, 51, 0.05);
+}
+
+.move-item.active-move {
+    background: var(--selected);
+    color: var(--navy);
 }
 
 /* --- PAWN PROMOTION MODAL STYLES --- */
