@@ -11,10 +11,17 @@
 <body>
 
     <div class="emulator-container">
+        <!-- SVG Layer for Data Flow Animations -->
+        <svg id="animation-layer"></svg>
+        
         <main class="ide-panel">
             <header class="panel-header">
                 <h2> Assembly Editor</h2>
                 <div class="execution-controls">
+                    <label class="toggle-label" style="display: flex; align-items: center; gap: 5px; margin-right: 15px; color: var(--text-light); font-size: 0.8rem; cursor: pointer;">
+                        <input type="checkbox" id="chk-animate" checked>
+                        Animate Data Flow
+                    </label>
                     <button id="btn-assemble" class="btn primary-btn">compile</button>
                     <button id="btn-step" class="btn secondary-btn" disabled>Step</button>
                     <button id="btn-run" class="btn success-btn" disabled>▶Run Machine</button>

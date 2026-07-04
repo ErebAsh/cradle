@@ -8,15 +8,27 @@ const cpu = {
 };
 
 // Instruction-to-Opcode hex mapping dictionary
-const OPCODES = { HALT: 0x00, MOV: 0x01, ADD: 0x02, SUB: 0x03, JMP: 0x04 };
+const OPCODES = { 
+    HALT: 0x00, 
+    MOV_LIT: 0x01, 
+    ADD: 0x02, 
+    SUB: 0x03, 
+    JMP: 0x04,
+    MOV_REG: 0x05,      // MOV Reg, Reg
+    MOV_MEM_R: 0x06,    // MOV Reg, [Addr]
+    MOV_R_MEM: 0x07     // MOV [Addr], Reg
+};
 
-let instructionInterval = null;
+let runLoopActive = false;
+let isAnimating = false;
 
 // --- DOM BINDINGS ---
 const ramGrid = document.getElementById('ram-matrix');
 const consoleOutput = document.getElementById('console-output');
 const btnStep = document.getElementById('btn-step');
 const btnRun = document.getElementById('btn-run');
+const chkAnimate = document.getElementById('chk-animate');
+const animationLayer = document.getElementById('animation-layer');
 
 // Generate structural UI elements for the 16-byte RAM visualization grid
 function renderInitialHardwareGrid() {
@@ -62,6 +74,80 @@ function printConsole(text, isError = false) {
     consoleOutput.style.color = isError ? '#ef4444' : '#a4b0be';
 }
 
+// --- DATA FLOW ANIMATION ENGINE ---
+function getCenterCoords(element) {
+    const rect = element.getBoundingClientRect();
+    const containerRect = document.querySelector('.emulator-container').getBoundingClientRect();
+    return {
+        x: rect.left + rect.width / 2 - containerRect.left,
+        y: rect.top + rect.height / 2 - containerRect.top
+    };
+}
+
+function animateDataFlow(sourceElId, destElId, labelValue) {
+    return new Promise(resolve => {
+        if (!chkAnimate || !chkAnimate.checked) {
+            resolve();
+            return;
+        }
+
+        const sourceEl = document.getElementById(sourceElId);
+        const destEl = document.getElementById(destElId);
+        if (!sourceEl || !destEl) {
+            resolve();
+            return;
+        }
+
+        isAnimating = true;
+        const start = getCenterCoords(sourceEl);
+        const end = getCenterCoords(destEl);
+
+        // Highlight source and destination
+        sourceEl.classList.add('highlight-read');
+        destEl.classList.add('highlight-write');
+
+        // Create Path
+        const path = document.createElementNS("http://www.w3.org/2000/svg", "line");
+        path.setAttribute("x1", start.x);
+        path.setAttribute("y1", start.y);
+        path.setAttribute("x2", end.x);
+        path.setAttribute("y2", end.y);
+        path.setAttribute("class", "data-path");
+        
+        // Create Packet
+        const packet = document.createElementNS("http://www.w3.org/2000/svg", "circle");
+        packet.setAttribute("r", "6");
+        packet.setAttribute("cx", start.x);
+        packet.setAttribute("cy", start.y);
+        packet.setAttribute("class", "data-packet");
+
+        animationLayer.appendChild(path);
+        animationLayer.appendChild(packet);
+
+        // Trigger animation
+        requestAnimationFrame(() => {
+            packet.setAttribute("cx", end.x);
+            packet.setAttribute("cy", end.y);
+        });
+
+        setTimeout(() => {
+            sourceEl.classList.remove('highlight-read');
+            destEl.classList.remove('highlight-write');
+            animationLayer.innerHTML = '';
+            isAnimating = false;
+            resolve();
+        }, 450); // Matches CSS transition duration + slight buffer
+    });
+}
+
+function getRegElementId(reg) {
+    return 'reg-' + reg.toLowerCase();
+}
+
+function getRamElementId(addr) {
+    return 'ram-cell-' + addr;
+}
+
 // --- COMPILER STRATEGY ENGINE (LEXER & PARSER) ---
 document.getElementById('btn-assemble').addEventListener('click', () => {
     const rawLines = document.getElementById('assembly-input').value.split('\n');
@@ -72,35 +158,65 @@ document.getElementById('btn-assemble').addEventListener('click', () => {
 
     try {
         for (let rawLine of rawLines) {
-            // Strip comments and redundant whitespaces cleanly
             let cleanLine = rawLine.split(';')[0].trim();
-            if (!cleanLine) continue; // Ignore empty breaks safely
+            if (!cleanLine) continue; 
 
             if (memoryWritePtr >= 16) throw new Error("Compilation Error: Out of 16-byte memory limits.");
 
-            // Tokenize standard instructions: MOV A, 5 -> ['MOV', 'A,', '5']
-            let tokens = cleanLine.replace(/,/g, ' ').split(/\s+/);
-            let operation = tokens[0].toUpperCase();
+            // Basic tokenization
+            let parts = cleanLine.replace(/,/g, ' ').split(/\s+/);
+            let operation = parts[0].toUpperCase();
 
             if (operation === 'HALT') {
                 cpu.RAM[memoryWritePtr++] = OPCODES.HALT;
             }
             else if (operation === 'MOV') {
-                let targetReg = tokens[1].toUpperCase();
-                let literalValue = parseInt(tokens[2]);
+                let target = parts[1].toUpperCase();
+                let source = parts[2].toUpperCase();
+                
+                let isTargetMem = target.startsWith('[') && target.endsWith(']');
+                let isSourceMem = source.startsWith('[') && source.endsWith(']');
 
-                if (!['A', 'B', 'C', 'D'].includes(targetReg) || isNaN(literalValue)) {
-                    throw new Error(`Syntax Error: Invalid arguments in line "${cleanLine}"`);
+                if (isTargetMem && isSourceMem) {
+                    throw new Error("Memory-to-Memory MOV not supported.");
                 }
 
-                // Encode layout details: Opcode -> target register metadata identity -> numeric payload byte
-                cpu.RAM[memoryWritePtr++] = OPCODES.MOV;
-                cpu.RAM[memoryWritePtr++] = targetReg.charCodeAt(0); // Convert register letter character to ASCII byte
-                cpu.RAM[memoryWritePtr++] = literalValue & 0xFF;     // Sanitize to 8-bit boundaries
+                if (isTargetMem) {
+                    // MOV [Addr], Reg
+                    let addr = parseInt(target.replace(/\[|\]/g, ''));
+                    if (!['A', 'B', 'C', 'D'].includes(source) || isNaN(addr)) throw new Error("Invalid MOV syntax.");
+                    cpu.RAM[memoryWritePtr++] = OPCODES.MOV_R_MEM;
+                    cpu.RAM[memoryWritePtr++] = addr & 0xFF;
+                    cpu.RAM[memoryWritePtr++] = source.charCodeAt(0);
+                } else if (isSourceMem) {
+                    // MOV Reg, [Addr]
+                    let addr = parseInt(source.replace(/\[|\]/g, ''));
+                    if (!['A', 'B', 'C', 'D'].includes(target) || isNaN(addr)) throw new Error("Invalid MOV syntax.");
+                    cpu.RAM[memoryWritePtr++] = OPCODES.MOV_MEM_R;
+                    cpu.RAM[memoryWritePtr++] = target.charCodeAt(0);
+                    cpu.RAM[memoryWritePtr++] = addr & 0xFF;
+                } else if (['A', 'B', 'C', 'D'].includes(source)) {
+                    // MOV Reg, Reg
+                    if (!['A', 'B', 'C', 'D'].includes(target)) throw new Error("Invalid MOV syntax.");
+                    cpu.RAM[memoryWritePtr++] = OPCODES.MOV_REG;
+                    cpu.RAM[memoryWritePtr++] = target.charCodeAt(0);
+                    cpu.RAM[memoryWritePtr++] = source.charCodeAt(0);
+                } else {
+                    // MOV Reg, Literal
+                    let val = parseInt(source);
+                    if (!['A', 'B', 'C', 'D'].includes(target) || isNaN(val)) throw new Error("Invalid MOV syntax.");
+                    cpu.RAM[memoryWritePtr++] = OPCODES.MOV_LIT;
+                    cpu.RAM[memoryWritePtr++] = target.charCodeAt(0);
+                    cpu.RAM[memoryWritePtr++] = val & 0xFF;
+                }
             }
             else if (operation === 'ADD' || operation === 'SUB') {
-                let regDest = tokens[1].toUpperCase();
-                let regSrc = tokens[2].toUpperCase();
+                let regDest = parts[1].toUpperCase();
+                let regSrc = parts[2].toUpperCase();
+
+                if (!['A', 'B', 'C', 'D'].includes(regDest) || !['A', 'B', 'C', 'D'].includes(regSrc)) {
+                    throw new Error("Invalid Math operation syntax.");
+                }
 
                 cpu.RAM[memoryWritePtr++] = OPCODES[operation];
                 cpu.RAM[memoryWritePtr++] = regDest.charCodeAt(0);
@@ -111,7 +227,6 @@ document.getElementById('btn-assemble').addEventListener('click', () => {
             }
         }
 
-        // Fresh compile configuration resetting states completely
         resetHardwareState();
         btnStep.disabled = false;
         btnRun.disabled = false;
@@ -122,42 +237,72 @@ document.getElementById('btn-assemble').addEventListener('click', () => {
 });
 
 // --- FETCH-DECODE-EXECUTE PROCESSOR RUNTIME PASS ---
-function executeClockCycleStep() {
+async function executeClockCycleStep() {
     if (cpu.halted || cpu.PC >= 16) {
         cpu.halted = true;
-        clearInterval(instructionInterval);
+        runLoopActive = false;
         printConsole("Processor execution finished (System HALT or memory out of bounds).");
         return;
     }
 
-    // Fetch block instruction bytecode operations
-    let currentOpcode = cpu.RAM[cpu.PC];
+    if (isAnimating) return; // Prevent overlap
 
-    // Decode & Execute Operations via Bitwise Math
+    let currentOpcode = cpu.RAM[cpu.PC];
+    let prevPC = cpu.PC;
+
     switch (currentOpcode) {
         case OPCODES.HALT:
             cpu.halted = true;
             break;
 
-        case OPCODES.MOV: {
-            let regAscii = cpu.RAM[cpu.PC + 1];
+        case OPCODES.MOV_LIT: {
+            let regLetter = String.fromCharCode(cpu.RAM[cpu.PC + 1]);
             let value = cpu.RAM[cpu.PC + 2];
-            let regLetter = String.fromCharCode(regAscii);
-
+            await animateDataFlow(getRamElementId(cpu.PC + 2), getRegElementId(regLetter), value);
             cpu.registers[regLetter] = value;
-            cpu.PC += 3; // Shift instruction pointer past operation payload data blocks
+            cpu.PC += 3;
+            break;
+        }
+
+        case OPCODES.MOV_REG: {
+            let destReg = String.fromCharCode(cpu.RAM[cpu.PC + 1]);
+            let srcReg = String.fromCharCode(cpu.RAM[cpu.PC + 2]);
+            let value = cpu.registers[srcReg];
+            await animateDataFlow(getRegElementId(srcReg), getRegElementId(destReg), value);
+            cpu.registers[destReg] = value;
+            cpu.PC += 3;
+            break;
+        }
+
+        case OPCODES.MOV_MEM_R: {
+            let destReg = String.fromCharCode(cpu.RAM[cpu.PC + 1]);
+            let addr = cpu.RAM[cpu.PC + 2];
+            let value = cpu.RAM[addr];
+            await animateDataFlow(getRamElementId(addr), getRegElementId(destReg), value);
+            cpu.registers[destReg] = value;
+            cpu.PC += 3;
+            break;
+        }
+
+        case OPCODES.MOV_R_MEM: {
+            let addr = cpu.RAM[cpu.PC + 1];
+            let srcReg = String.fromCharCode(cpu.RAM[cpu.PC + 2]);
+            let value = cpu.registers[srcReg];
+            await animateDataFlow(getRegElementId(srcReg), getRamElementId(addr), value);
+            cpu.RAM[addr] = value;
+            cpu.PC += 3;
             break;
         }
 
         case OPCODES.ADD: {
             let destReg = String.fromCharCode(cpu.RAM[cpu.PC + 1]);
             let srcReg = String.fromCharCode(cpu.RAM[cpu.PC + 2]);
-
+            await animateDataFlow(getRegElementId(srcReg), getRegElementId(destReg), cpu.registers[srcReg]);
+            
             let result = cpu.registers[destReg] + cpu.registers[srcReg];
-            cpu.flags.C = result > 255 ? 1 : 0; // Evaluate Arithmetic Overflow states
+            cpu.flags.C = result > 255 ? 1 : 0; 
             cpu.registers[destReg] = result & 0xFF;
             cpu.flags.Z = cpu.registers[destReg] === 0 ? 1 : 0;
-
             cpu.PC += 3;
             break;
         }
@@ -165,18 +310,18 @@ function executeClockCycleStep() {
         case OPCODES.SUB: {
             let destReg = String.fromCharCode(cpu.RAM[cpu.PC + 1]);
             let srcReg = String.fromCharCode(cpu.RAM[cpu.PC + 2]);
+            await animateDataFlow(getRegElementId(srcReg), getRegElementId(destReg), cpu.registers[srcReg]);
 
             let result = cpu.registers[destReg] - cpu.registers[srcReg];
             cpu.flags.C = result < 0 ? 1 : 0;
             cpu.registers[destReg] = (result < 0 ? result + 256 : result) & 0xFF;
             cpu.flags.Z = cpu.registers[destReg] === 0 ? 1 : 0;
-
             cpu.PC += 3;
             break;
         }
 
         default:
-            cpu.PC++; // Skip dead unallocated bytes safely
+            cpu.PC++; 
             break;
     }
 
@@ -184,17 +329,44 @@ function executeClockCycleStep() {
 }
 
 // --- MACHINE RUN/RESET EVENT HOOKS ---
-btnStep.addEventListener('click', executeClockCycleStep);
+btnStep.addEventListener('click', async () => {
+    btnStep.disabled = true;
+    btnRun.disabled = true;
+    await executeClockCycleStep();
+    if (!cpu.halted) {
+        btnStep.disabled = false;
+        btnRun.disabled = false;
+    }
+});
+
+async function executionLoop() {
+    while (runLoopActive && !cpu.halted && cpu.PC < 16) {
+        await executeClockCycleStep();
+        if (chkAnimate && chkAnimate.checked) {
+            // Wait extra time if animations are enabled so it's pleasant to watch
+            await new Promise(r => setTimeout(r, 100));
+        } else {
+            // When animations are disabled, throttle slightly so it doesn't instantly finish
+            await new Promise(r => setTimeout(r, 100));
+        }
+    }
+    btnStep.disabled = cpu.halted;
+    btnRun.disabled = cpu.halted;
+}
 
 btnRun.addEventListener('click', () => {
+    if (runLoopActive) return;
+    runLoopActive = true;
     btnRun.disabled = true;
     btnStep.disabled = true;
     printConsole("Processor running at variable clock speed execution loop...");
-    instructionInterval = setInterval(executeClockCycleStep, 400); // 400ms variable step rate
+    executionLoop();
 });
 
 function resetHardwareState() {
-    clearInterval(instructionInterval);
+    runLoopActive = false;
+    isAnimating = false;
+    animationLayer.innerHTML = '';
     cpu.registers = { A: 0, B: 0, C: 0, D: 0 };
     cpu.PC = 0;
     cpu.flags = { Z: 1, C: 0 };
