@@ -916,6 +916,132 @@ function setupEvents() {
   setTimeout(resizeCanvases, 100);
 }
 
+// ── EXPORT MODEL ─────────────────────────────────────────────
+function triggerDownload(content, filename) {
+  const blob = new Blob([content], { type: "text/plain" });
+  const url = URL.createObjectURL(blob);
+  const a = document.createElement("a");
+  a.href = url;
+  a.download = filename;
+  document.body.appendChild(a);
+  a.click();
+  document.body.removeChild(a);
+  URL.revokeObjectURL(url);
+}
+
+function exportModelJS() {
+  if (!state.net) {
+    alert("No active model to export.");
+    return;
+  }
+  const jsCode = `// Exported Neural Network Model
+// Architecture: ${state.net.layers.join(" -> ")}
+// Activation: ${state.net.activationName}
+
+const model = {
+  layers: ${JSON.stringify(state.net.layers)},
+  activation: "${state.net.activationName}",
+  weights: ${JSON.stringify(state.net.weights)},
+  biases: ${JSON.stringify(state.net.biases)}
+};
+
+function predict(input) {
+  let a = input.slice();
+  for (let l = 0; l < model.weights.length; l++) {
+    const w = model.weights[l];
+    const b = model.biases[l];
+    const isLast = (l === model.weights.length - 1);
+    let nextA = [];
+    
+    for (let j = 0; j < w.length; j++) {
+      let sum = b[j];
+      for (let k = 0; k < a.length; k++) {
+        sum += w[j][k] * a[k];
+      }
+      
+      // Output layer always uses Sigmoid
+      if (isLast) {
+        let clamped = Math.max(-500, Math.min(500, sum));
+        nextA.push(1 / (1 + Math.exp(-clamped)));
+      } else {
+        if (model.activation === "relu") {
+          nextA.push(Math.max(0, sum));
+        } else if (model.activation === "sigmoid") {
+          let clamped = Math.max(-500, Math.min(500, sum));
+          nextA.push(1 / (1 + Math.exp(-clamped)));
+        } else if (model.activation === "tanh") {
+          nextA.push(Math.tanh(sum));
+        } else if (model.activation === "leaky_relu") {
+          nextA.push(sum > 0 ? sum : 0.01 * sum);
+        }
+      }
+    }
+    a = nextA;
+  }
+  return a;
+}
+
+// Example Prediction
+const prediction = predict([0.25, -0.4]);
+console.log("Prediction output:", prediction);
+`;
+  triggerDownload(jsCode, "model.js");
+}
+
+function exportModelPython() {
+  if (!state.net) {
+    alert("No active model to export.");
+    return;
+  }
+  const pyCode = `# Exported Neural Network Model
+# Architecture: ${state.net.layers.join(" -> ")}
+# Activation: ${state.net.activationName}
+import math
+
+model = {
+    "layers": ${JSON.stringify(state.net.layers)},
+    "activation": "${state.net.activationName}",
+    "weights": ${JSON.stringify(state.net.weights)},
+    "biases": ${JSON.stringify(state.net.biases)}
+}
+
+def predict(input_data):
+    a = list(input_data)
+    for l in range(len(model["weights"])):
+        w = model["weights"][l]
+        b = model["biases"][l]
+        is_last = (l == len(model["weights"]) - 1)
+        next_a = []
+        
+        for j in range(len(w)):
+            s = b[j]
+            for k in range(len(a)):
+                s += w[j][k] * a[k]
+                
+            if is_last:
+                clamped = max(-500, min(500, s))
+                next_a.append(1 / (1 + math.exp(-clamped)))
+            else:
+                act = model["activation"]
+                if act == "relu":
+                    next_a.append(max(0, s))
+                elif act == "sigmoid":
+                    clamped = max(-500, min(500, s))
+                    next_a.append(1 / (1 + math.exp(-clamped)))
+                elif act == "tanh":
+                    next_a.append(math.tanh(s))
+                elif act == "leaky_relu":
+                    next_a.append(s if s > 0 else 0.01 * s)
+        a = next_a
+    return a
+
+# Example Prediction
+prediction = predict([0.25, -0.4])
+print("Prediction output:", prediction)
+`;
+  triggerDownload(pyCode, "model.py");
+}
+
 // ── BOOT ─────────────────────────────────────────────────────
 document.addEventListener("DOMContentLoaded", () => {
   initData();
@@ -924,4 +1050,10 @@ document.addEventListener("DOMContentLoaded", () => {
   setupEvents();
   updateControlDisabling();
   renderAll();
+  
+  // Bind Export Buttons
+  const btnExportJS = document.getElementById("btnExportJS");
+  const btnExportPy = document.getElementById("btnExportPy");
+  if (btnExportJS) btnExportJS.addEventListener("click", exportModelJS);
+  if (btnExportPy) btnExportPy.addEventListener("click", exportModelPython);
 });
