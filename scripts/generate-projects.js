@@ -10,9 +10,16 @@ const OUTPUT_FILE = path.join(
 );
 
 function titleCase(str) {
-  return str
+  let title = str
     .replace(/[-_]/g, " ")
     .replace(/\b\w/g, char => char.toUpperCase());
+
+  const acronyms = {
+    "Ai": "AI",
+    "Cpu": "CPU"
+  };
+
+  return title.replace(/\b(Ai|Cpu)\b/g, match => acronyms[match]);
 }
 
 function generateProjects() {

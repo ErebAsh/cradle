@@ -1,6 +1,6 @@
 [
   {
-    "title": "Ai Circuit Builder",
+    "title": "AI Circuit Builder",
     "category": "aiml",
     "path": "projects/aiml/ai-circuit-builder/"
   },
@@ -15,7 +15,7 @@
     "path": "projects/games/chess/"
   },
   {
-    "title": "Cpu Emulator",
+    "title": "CPU Emulator",
     "category": "dev-tools",
     "path": "projects/dev-tools/cpu-emulator/"
   },
@@ -35,17 +35,17 @@
     "path": "projects/games/ludo-game/"
   },
   {
+    "title": "Memory Flip Game",
+    "category": "games",
+    "path": "projects/games/memory-flip-game/"
+  },
+  {
     "title": "Neural Network Playground",
     "category": "aiml",
     "path": "projects/aiml/neural-network-playground/"
   },
   {
-    "title": "Memory Flip Game ",
-    "category": "games",
-    "path": "projects/games/memory-flip-game/"
-  },
-  {
-    "title": "Stone Paper Scissors Game ",
+    "title": "Stone Paper Scissors Game",
     "category": "games",
     "path": "projects/games/stone-paper-scissors-game/"
   }
