@@ -1,6 +1,6 @@
 [
   {
-    "title": "Ai Circuit Builder",
+    "title": "AI Circuit Builder",
     "category": "aiml",
     "path": "projects/aiml/ai-circuit-builder/"
   },
@@ -15,7 +15,7 @@
     "path": "projects/games/chess/"
   },
   {
-    "title": "Cpu Emulator",
+    "title": "CPU Emulator",
     "category": "dev-tools",
     "path": "projects/dev-tools/cpu-emulator/"
   },
