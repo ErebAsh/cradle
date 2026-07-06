@@ -3,6 +3,23 @@ let data = JSON.parse(localStorage.getItem('att_v5')) || {
   logs: [],
 };
 
+/**
+ * Security Utility: Escapes dangerous HTML characters to prevent DOM-based XSS
+ */
+function escapeHTML(str) {
+  if (!str) return '';
+  return String(str).replace(/[&<>"']/g, function (match) {
+    const escapeMap = {
+      '&': '&amp;',
+      '<': '&lt;',
+      '>': '&gt;',
+      '"': '&quot;',
+      "'": '&#x27;'
+    };
+    return escapeMap[match];
+  });
+}
+
 function render() {
   const body = document.getElementById('attendance-body');
   const logBox = document.getElementById('history-log');
@@ -28,9 +45,10 @@ function render() {
       goalStatus = `Attend <b>${neededFromRemaining}</b> more<br><small>out of ${remaining} left</small>`;
     }
 
+    // SECURITY FIX: s.name wrapped with escapeHTML()
     body.innerHTML += `
             <tr>
-                <td><b>${s.name}</b></td>
+                <td><b>${escapeHTML(s.name)}</b></td>
                 <td><input type="number" value="${s.total}" onchange="updateTotal(${i}, this.value)" style="width:50px"></td>
                 <td>
                     <div class="counter-group">
@@ -56,7 +74,8 @@ function render() {
     .slice(-15)
     .reverse()
     .forEach((log) => {
-      logBox.innerHTML += `<div class="history-item"><span><b>${log.sub}</b></span><span>${log.type}</span></div>`;
+      // SECURITY FIX: log.sub wrapped with escapeHTML()
+      logBox.innerHTML += `<div class="history-item"><span><b>${escapeHTML(log.sub)}</b></span><span>${log.type}</span></div>`;
     });
 
   localStorage.setItem('att_v5', JSON.stringify(data));
@@ -106,27 +125,28 @@ function updateTotal(i, val) {
 
   render();
 }
+
 function update(i, field, val) {
-    const subject = data.subjects[i];
+  const subject = data.subjects[i];
 
-    if (val === -1 && subject[field] === 0) return;
+  if (val === -1 && subject[field] === 0) return;
 
-    const conducted = subject.p + subject.a;
+  const conducted = subject.p + subject.a;
 
-    if (val === 1 && conducted >= subject.total) {
-        alert("Total classes limit reached.");
-        return;
-    }
+  if (val === 1 && conducted >= subject.total) {
+    alert("Total classes limit reached.");
+    return;
+  }
 
-    subject[field] += val;
+  subject[field] += val;
 
-    data.logs.push({
-        sub: subject.name,
-        type: (field === 'p' ? 'P' : 'A') + (val > 0 ? '+' : '-'),
-        date: new Date().toLocaleTimeString()
-    });
+  data.logs.push({
+    sub: subject.name,
+    type: (field === 'p' ? 'P' : 'A') + (val > 0 ? '+' : '-'),
+    date: new Date().toLocaleTimeString()
+  });
 
-    render();
+  render();
 }
 
 
