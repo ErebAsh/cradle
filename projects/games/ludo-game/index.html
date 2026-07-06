@@ -3,36 +3,100 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Ludo Game</title>
+    <title>Ludo — Premium Board Game</title>
+    <meta name="description" content="A premium digital Ludo board game with Canvas rendering, smooth animations, and 3D dice.">
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Outfit:wght@300;400;500;600;700;800&display=swap" rel="stylesheet">
     <link rel="stylesheet" href="style.css">
 </head>
 <body>
-    <div class="container">
-        <header>
+    <header class="top-bar">
+        <div class="logo">
+            <span class="logo-icon">🎲</span>
             <h1>Ludo</h1>
-            <p id="status">Red's turn</p>
-        </header>
+        </div>
+        <p id="status" class="status-badge">Red's turn</p>
+    </header>
 
-        <div class="controls">
-            <button id="rollDice">Roll Dice</button>
-            <div id="diceValue">🎲</div>
+    <main class="game-layout">
+        <!-- LEFT PANEL -->
+        <aside class="side-panel left-panel">
+            <div class="panel-section">
+                <h3 class="panel-title">Controls</h3>
+                <button id="rollDice" class="btn btn-roll">
+                    <span class="btn-icon">🎯</span> Roll Dice
+                </button>
+                <div class="dice-row">
+                    <div class="scene">
+                        <div class="cube" id="diceCube">
+                            <div class="cube-face cube-face-front">1</div>
+                            <div class="cube-face cube-face-back">6</div>
+                            <div class="cube-face cube-face-right">3</div>
+                            <div class="cube-face cube-face-left">4</div>
+                            <div class="cube-face cube-face-top">5</div>
+                            <div class="cube-face cube-face-bottom">2</div>
+                        </div>
+                    </div>
+                </div>
+                <div class="btn-group">
+                    <button id="newGame" class="btn btn-secondary">
+                        <span class="btn-icon">🔄</span> New Game
+                    </button>
+                    <button id="backHome" class="btn btn-ghost">
+                        <span class="btn-icon">🏠</span> Home
+                    </button>
+                </div>
+            </div>
 
-            <button id="newGame">New Game</button>
-            <button id="backHome">Back Home</button>
+            <div class="panel-section">
+                <h3 class="panel-title">Players</h3>
+                <div class="player-list">
+                    <div class="player-row active" data-color="red">
+                        <div class="player-dot red"></div>
+                        <span>Red</span>
+                    </div>
+                    <div class="player-row" data-color="green">
+                        <div class="player-dot green"></div>
+                        <span>Green</span>
+                    </div>
+                    <div class="player-row" data-color="blue">
+                        <div class="player-dot blue"></div>
+                        <span>Blue</span>
+                    </div>
+                    <div class="player-row" data-color="yellow">
+                        <div class="player-dot yellow"></div>
+                        <span>Yellow</span>
+                    </div>
+                </div>
+            </div>
+        </aside>
+
+        <!-- CENTER: CANVAS -->
+        <div class="board-container">
+            <canvas id="ludoCanvas" width="600" height="600"></canvas>
         </div>
 
-        <div class="game-info">
-            <div>Current Turn: <span id="turnLabel">Red</span></div>
-            <div>Moves: <span id="moveCount">0</span></div>
-        </div>
+        <!-- RIGHT PANEL -->
+        <aside class="side-panel right-panel">
+            <div class="panel-section">
+                <h3 class="panel-title">Dashboard</h3>
+                <div class="stat-card">
+                    <span class="stat-label">Current Turn</span>
+                    <span class="stat-value" id="turnLabel">Red</span>
+                </div>
+                <div class="stat-card">
+                    <span class="stat-label">Total Moves</span>
+                    <span class="stat-value" id="moveCount">0</span>
+                </div>
+            </div>
 
-        <div id="board" class="board"></div>
-
-        <section class="history">
-            <h2>Move History</h2>
-            <ol id="moveList"></ol>
-        </section>
-    </div>
+            <div class="panel-section">
+                <h3 class="panel-title">📜 Move History</h3>
+                <ol id="moveList"></ol>
+            </div>
+        </aside>
+    </main>
 
     <script src="script.js"></script>
 </body>
