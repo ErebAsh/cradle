@@ -278,3 +278,48 @@ body {
     0% { background: rgba(16, 185, 129, 0.4); box-shadow: 0 0 15px #10b981; border-color: #10b981; }
     100% { background: rgba(16, 185, 129, 0.02); box-shadow: none; border-color: rgba(255, 255, 255, 0.03); }
 }
+
+/* Pipeline UI Styles */
+.pipeline-grid {
+    display: flex;
+    flex-direction: column;
+    gap: 8px;
+}
+
+.pipeline-stage {
+    background: rgba(255, 255, 255, 0.02);
+    border: 1px solid rgba(255, 255, 255, 0.05);
+    border-radius: 6px;
+    padding: 10px;
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    transition: all 0.2s ease;
+}
+
+.pipeline-stage.active {
+    background: rgba(0, 242, 254, 0.1);
+    border-color: rgba(0, 242, 254, 0.4);
+    box-shadow: 0 0 8px rgba(0, 242, 254, 0.2);
+}
+
+.pipeline-stage.bubble {
+    opacity: 0.5;
+}
+
+.pipeline-stage.stalled {
+    background: rgba(239, 68, 68, 0.1);
+    border-color: rgba(239, 68, 68, 0.4);
+}
+
+.stage-label {
+    font-size: 0.75rem;
+    color: #747d8c;
+    font-weight: bold;
+}
+
+.stage-instr {
+    font-size: 0.9rem;
+    color: #00ff66;
+    font-weight: bold;
+}

@@ -43,6 +43,32 @@
 
         <aside class="hardware-panel">
             <section class="hardware-section">
+                <h3>Instruction Pipeline</h3>
+                <div class="pipeline-grid">
+                    <div class="pipeline-stage" id="stage-if">
+                        <span class="stage-label">IF (Fetch)</span>
+                        <span class="stage-instr" id="instr-if">NOP</span>
+                    </div>
+                    <div class="pipeline-stage" id="stage-id">
+                        <span class="stage-label">ID (Decode)</span>
+                        <span class="stage-instr" id="instr-id">NOP</span>
+                    </div>
+                    <div class="pipeline-stage" id="stage-ex">
+                        <span class="stage-label">EX (Execute)</span>
+                        <span class="stage-instr" id="instr-ex">NOP</span>
+                    </div>
+                    <div class="pipeline-stage" id="stage-mem">
+                        <span class="stage-label">MEM (Memory)</span>
+                        <span class="stage-instr" id="instr-mem">NOP</span>
+                    </div>
+                    <div class="pipeline-stage" id="stage-wb">
+                        <span class="stage-label">WB (Write-back)</span>
+                        <span class="stage-instr" id="instr-wb">NOP</span>
+                    </div>
+                </div>
+            </section>
+
+            <section class="hardware-section">
                 <h3>CPU Registers</h3>
                 <div class="registers-grid">
                     <div class="register-card"><span class="reg-label">Reg A (Accumulator)</span><span class="reg-val"
