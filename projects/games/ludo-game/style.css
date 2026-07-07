@@ -415,3 +415,91 @@ h1 {
     .board-container { padding: 6px; }
     #ludoCanvas { width: 100%; height: auto; }
 }
+
+/* ---- Modal Styles ---- */
+.modal-overlay {
+    position: fixed;
+    top: 0;
+    left: 0;
+    width: 100vw;
+    height: 100vh;
+    background: rgba(15, 15, 26, 0.85);
+    backdrop-filter: blur(8px);
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    z-index: 1000;
+    opacity: 1;
+    transition: opacity 0.3s ease;
+}
+
+.modal-overlay.hidden {
+    opacity: 0;
+    pointer-events: none;
+}
+
+.modal-content {
+    background: var(--bg-card);
+    border: 1px solid var(--border-subtle);
+    border-radius: var(--radius-lg);
+    padding: 30px;
+    width: 100%;
+    max-width: 400px;
+    box-shadow: var(--shadow-glow), var(--shadow-soft);
+    display: flex;
+    flex-direction: column;
+    gap: 16px;
+}
+
+.modal-content h2 {
+    font-size: 1.5rem;
+    text-align: center;
+    margin-bottom: 10px;
+    background: linear-gradient(135deg, var(--text-primary), var(--text-secondary));
+    -webkit-background-clip: text;
+    -webkit-text-fill-color: transparent;
+}
+
+.player-config-list {
+    display: flex;
+    flex-direction: column;
+    gap: 12px;
+}
+
+.player-config-row {
+    display: flex;
+    align-items: center;
+    gap: 12px;
+    background: rgba(255, 255, 255, 0.03);
+    padding: 10px 14px;
+    border-radius: var(--radius-sm);
+    border: 1px solid rgba(255, 255, 255, 0.05);
+}
+
+.player-config-row span {
+    flex: 1;
+    font-weight: 500;
+    color: var(--text-primary);
+}
+
+.player-config-row select {
+    background: var(--bg-secondary);
+    color: var(--text-primary);
+    border: 1px solid var(--border-subtle);
+    padding: 6px 10px;
+    border-radius: 6px;
+    font-family: var(--font-family);
+    cursor: pointer;
+    outline: none;
+    font-size: 0.9rem;
+}
+
+.player-config-row select:focus {
+    border-color: var(--accent-purple);
+}
+
+.player-type-icon {
+    margin-left: auto;
+    font-size: 1.1rem;
+    opacity: 0.8;
+}
