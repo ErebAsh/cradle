@@ -55,3 +55,9 @@ http://localhost:8000
 ```
 4. For Individual projects
    - Open their `index.html` directly on browser 
+
+## 🤝 Contributing
+
+Contributions are welcome! Whether you're fixing bugs, improving documentation, or adding new ideas and experiments, your help is greatly appreciated.
+
+Before getting started, please read our [Contributing Guide](CONTRIBUTING.md) for information about the development workflow, coding standards, and pull request process.
