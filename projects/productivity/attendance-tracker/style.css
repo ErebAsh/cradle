@@ -144,6 +144,12 @@ td {
   font-family: inherit;
 }
 
+.chart-container {
+  width: 100%;
+  max-width: 300px;
+  margin: 20px auto 0;
+}
+
 @media (max-width: 1000px) {
   .container {
     grid-template-columns: 1fr;

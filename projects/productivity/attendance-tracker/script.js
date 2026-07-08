@@ -153,6 +153,73 @@ function render() {
     });
 
   localStorage.setItem('att_v5', JSON.stringify(data));
+
+  updateChart();
+}
+
+let attendanceChart = null;
+
+function updateChart() {
+  const ctx = document.getElementById('attendanceChart');
+  if (!ctx) return;
+  
+  let totalPresent = 0;
+  let totalAbsent = 0;
+  
+  data.subjects.forEach(s => {
+    totalPresent += s.p;
+    totalAbsent += s.a;
+  });
+  
+  if (totalPresent === 0 && totalAbsent === 0) {
+    if (attendanceChart) {
+      attendanceChart.destroy();
+      attendanceChart = null;
+    }
+    return;
+  }
+  
+  if (attendanceChart) {
+    attendanceChart.data.datasets[0].data = [totalPresent, totalAbsent];
+    attendanceChart.update();
+  } else {
+    attendanceChart = new Chart(ctx, {
+      type: 'pie',
+      data: {
+        labels: ['Present', 'Absent'],
+        datasets: [{
+          data: [totalPresent, totalAbsent],
+          backgroundColor: ['#16a34a', '#dc2626'],
+          hoverOffset: 4
+        }]
+      }
+    });
+  }
+}
+
+function exportCSV() {
+  if (!data.subjects || data.subjects.length === 0) {
+    alert("No data to export.");
+    return;
+  }
+  
+  let csvContent = "data:text/csv;charset=utf-8,";
+  csvContent += "Subject,Total Classes,Present,Absent,Current %,Target %\n";
+  
+  data.subjects.forEach(s => {
+    const conducted = s.p + s.a;
+    const currentPct = conducted === 0 ? 0 : ((s.p / conducted) * 100).toFixed(1);
+    csvContent += `"${s.name}",${s.total},${s.p},${s.a},${currentPct}%,${s.target}%\n`;
+  });
+  
+  const encodedUri = encodeURI(csvContent);
+  const link = document.createElement("a");
+  link.setAttribute("href", encodedUri);
+  link.setAttribute("download", "attendance_logs.csv");
+  document.body.appendChild(link);
+  
+  link.click();
+  document.body.removeChild(link);
 }
 
 function openModal() {
