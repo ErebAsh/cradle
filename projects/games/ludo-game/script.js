@@ -270,12 +270,17 @@ function drawTokens() {
     });
 }
 
+
+function rollDice() {
+    if (gameOver) return;
+
 function renderLoop() {
     drawBoard();
     drawTokens();
     requestAnimationFrame(renderLoop);
 }
 requestAnimationFrame(renderLoop);
+
 
 
 // --- LOGIC ---
@@ -296,6 +301,39 @@ function getTokenCoordinate(token) {
         y: r * CELL_SIZE + CELL_SIZE/2
     };
 }
+
+
+    diceValue = Math.floor(Math.random() * 6) + 1;
+    diceValueElement.textContent = diceValue;
+
+    const playerColorName = capitalize(COLORS[currentPlayer]); 
+    setStatus(`${playerColorName} rolled ${diceValue}`);
+
+    const currentTokens = (typeof tokens !== 'undefined' ? tokens : 
+                           typeof playerTokens !== 'undefined' ? playerTokens : 
+                           typeof gameState !== 'undefined' ? gameState.tokens : null)?.[COLORS[currentPlayer]];
+
+    if (currentTokens) {
+        const allTokensInYard = currentTokens.every(token => token.stepsTraveled === 0);
+
+        if (diceValue !== 6 && allTokensInYard) {
+            setStatus(`${playerColorName} rolled a ${diceValue}. Need a 6 to leave base!`);
+            
+            setTimeout(() => {
+                diceValue = null; 
+                nextTurn(); 
+            }, 1200);
+            return;
+        }
+    } else {
+        if (diceValue !== 6) {
+            setTimeout(() => {
+                diceValue = null;
+                nextTurn();
+            }, 1200);
+            return;
+        }
+    }
 
 function animateTokenTo(token) {
     let coords = getTokenCoordinate(token);
@@ -327,6 +365,7 @@ function rollDice() {
         saveGame();
         checkAutoTurn();
     }, 1000);
+
 }
 
 function checkAutoTurn() {
