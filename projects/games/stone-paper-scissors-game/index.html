@@ -28,10 +28,17 @@
       <h1 class="title">BATTLE <span>ARENA</span></h1>
       <p class="subtitle">Choose your weapon and defeat the machine</p>
 
+      <div class="mode-selector" id="modeSelector">
+        <button class="mode-btn active" data-mode="1">Single Round</button>
+        <button class="mode-btn" data-mode="3">Best of 3</button>
+        <button class="mode-btn" data-mode="5">Best of 5</button>
+      </div>
+
       <div class="score-board">
         <div class="score-card">
           <span class="label">YOU</span>
           <span class="score" id="playerScore">0</span>
+          <div class="tally" id="playerTally"></div>
         </div>
         <div class="score-card streak-card">
           <span class="label">STREAK</span>
@@ -40,6 +47,7 @@
         <div class="score-card">
           <span class="label">CPU</span>
           <span class="score" id="computerScore">0</span>
+          <div class="tally" id="computerTally"></div>
         </div>
       </div>
 
@@ -78,6 +86,15 @@
   </footer>
 
   <div class="confetti-container" id="confettiContainer"></div>
+
+  <!-- VICTORY MODAL -->
+  <div class="modal-overlay hidden" id="victoryModal">
+    <div class="modal-box">
+      <h2 id="modalTitle">Tournament Complete</h2>
+      <p id="modalMessage">You defeated the machine!</p>
+      <button class="modal-btn" id="playAgainBtn">Play Again</button>
+    </div>
+  </div>
 
   <script src="script.js"></script>
 </body>

@@ -4,6 +4,10 @@ const choicesList = ["rock", "paper", "scissors"];
 let playerScore = 0;
 let computerScore = 0;
 let streak = 0;
+let gameMode = 1;
+let targetWins = 1;
+let playerTournamentWins = 0;
+let computerTournamentWins = 0;
 
 const choiceBtns = document.querySelectorAll(".choice-btn");
 const playerPickEl = document.getElementById("playerPick");
@@ -15,6 +19,53 @@ const streakEl = document.getElementById("streakCount");
 const resetBtn = document.getElementById("resetBtn");
 const battleArena = document.getElementById("battleArena");
 const confettiContainer = document.getElementById("confettiContainer");
+const modeBtns = document.querySelectorAll(".mode-btn");
+const playerTallyEl = document.getElementById("playerTally");
+const computerTallyEl = document.getElementById("computerTally");
+const victoryModal = document.getElementById("victoryModal");
+const modalTitle = document.getElementById("modalTitle");
+const modalMessage = document.getElementById("modalMessage");
+const playAgainBtn = document.getElementById("playAgainBtn");
+
+modeBtns.forEach(btn => {
+  btn.addEventListener("click", () => {
+    modeBtns.forEach(b => b.classList.remove("active"));
+    btn.classList.add("active");
+    gameMode = parseInt(btn.getAttribute("data-mode"));
+    targetWins = Math.ceil(gameMode / 2);
+    resetTournament();
+  });
+});
+
+function renderTally() {
+  if (gameMode === 1) {
+    if (playerTallyEl) playerTallyEl.innerHTML = "";
+    if (computerTallyEl) computerTallyEl.innerHTML = "";
+    return;
+  }
+  
+  if (playerTallyEl) playerTallyEl.innerHTML = "";
+  if (computerTallyEl) computerTallyEl.innerHTML = "";
+  
+  for (let i = 0; i < targetWins; i++) {
+    const pDot = document.createElement("div");
+    pDot.classList.add("dot");
+    if (i < playerTournamentWins) pDot.classList.add("won");
+    if (playerTallyEl) playerTallyEl.appendChild(pDot);
+    
+    const cDot = document.createElement("div");
+    cDot.classList.add("dot");
+    if (i < computerTournamentWins) cDot.classList.add("won");
+    if (computerTallyEl) computerTallyEl.appendChild(cDot);
+  }
+}
+
+function resetTournament() {
+  playerTournamentWins = 0;
+  computerTournamentWins = 0;
+  renderTally();
+  resetBtn.click();
+}
 
 choiceBtns.forEach(btn => {
   btn.addEventListener("click", () => {
@@ -22,6 +73,14 @@ choiceBtns.forEach(btn => {
     startCountdown(playerChoice);
   });
 });
+
+function triggerShake() {
+  playerPickEl.classList.remove("shake");
+  computerPickEl.classList.remove("shake");
+  void playerPickEl.offsetWidth; // trigger reflow
+  playerPickEl.classList.add("shake");
+  computerPickEl.classList.add("shake");
+}
 
 function startCountdown(playerChoice) {
   toggleButtons(true);
@@ -33,13 +92,13 @@ function startCountdown(playerChoice) {
   let i = 0;
 
   resultText.textContent = steps[i];
-  playerPickEl.classList.add("shake");
-  computerPickEl.classList.add("shake");
+  triggerShake();
 
   const interval = setInterval(() => {
     i++;
     if (i < steps.length) {
       resultText.textContent = steps[i];
+      if (i < 3) triggerShake();
     } else {
       clearInterval(interval);
       playerPickEl.classList.remove("shake");
@@ -70,13 +129,15 @@ function playGame(player, computer) {
   ) {
     resultText.textContent = "🎉 You Win!";
     playerScore++;
+    playerTournamentWins++;
     streak++;
     playerScoreEl.textContent = playerScore;
     battleArena.classList.add("win-glow");
-    launchConfetti();
+    if (gameMode === 1) launchConfetti();
   } else {
     resultText.textContent = "💥 Computer Wins!";
     computerScore++;
+    computerTournamentWins++;
     streak = 0;
     computerScoreEl.textContent = computerScore;
     battleArena.classList.add("lose-glow");
@@ -85,7 +146,19 @@ function playGame(player, computer) {
   }
 
   streakEl.textContent = streak;
-  toggleButtons(false);
+  renderTally();
+  
+  if (gameMode > 1) {
+    if (playerTournamentWins >= targetWins) {
+      setTimeout(() => showVictoryModal("Player"), 500);
+    } else if (computerTournamentWins >= targetWins) {
+      setTimeout(() => showVictoryModal("Computer"), 500);
+    } else {
+      toggleButtons(false);
+    }
+  } else {
+    toggleButtons(false);
+  }
 }
 
 function toggleButtons(disabled) {
@@ -96,6 +169,9 @@ resetBtn.addEventListener("click", () => {
   playerScore = 0;
   computerScore = 0;
   streak = 0;
+  playerTournamentWins = 0;
+  computerTournamentWins = 0;
+  renderTally();
   playerScoreEl.textContent = 0;
   computerScoreEl.textContent = 0;
   streakEl.textContent = 0;
@@ -103,6 +179,28 @@ resetBtn.addEventListener("click", () => {
   computerPickEl.textContent = "❓";
   resultText.textContent = "Choose your weapon!";
   battleArena.classList.remove("win-glow", "lose-glow");
+});
+
+function showVictoryModal(winner) {
+  victoryModal.classList.remove("hidden");
+  if (winner === "Player") {
+    modalTitle.textContent = "Tournament Complete";
+    modalMessage.textContent = "You defeated the machine!";
+    modalTitle.style.color = "#00f5ff";
+    modalTitle.style.textShadow = "0 0 10px rgba(0, 245, 255, 0.4)";
+    launchConfetti();
+  } else {
+    modalTitle.textContent = "Defeat";
+    modalMessage.textContent = "The machine wins this time.";
+    modalTitle.style.color = "#ff2e88";
+    modalTitle.style.textShadow = "0 0 10px rgba(255, 46, 136, 0.4)";
+  }
+}
+
+playAgainBtn.addEventListener("click", () => {
+  victoryModal.classList.add("hidden");
+  resetTournament();
+  toggleButtons(false);
 });
 
 function launchConfetti() {
