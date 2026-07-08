@@ -156,7 +156,6 @@ function renderTokens() {
 }
 
 function rollDice() {
-
     if (gameOver) return;
 
     if (diceValue !== null) {
@@ -164,18 +163,37 @@ function rollDice() {
         return;
     }
 
-    diceValue =
-        Math.floor(Math.random() * 6) + 1;
+    diceValue = Math.floor(Math.random() * 6) + 1;
+    diceValueElement.textContent = diceValue;
 
-    diceValueElement.textContent =
-        diceValue;
+    const playerColorName = capitalize(COLORS[currentPlayer]); 
+    setStatus(`${playerColorName} rolled ${diceValue}`);
 
-    setStatus(
-        `${capitalize(
-            COLORS[currentPlayer]
-        )} rolled ${diceValue}`
-    );
+    const currentTokens = (typeof tokens !== 'undefined' ? tokens : 
+                           typeof playerTokens !== 'undefined' ? playerTokens : 
+                           typeof gameState !== 'undefined' ? gameState.tokens : null)?.[COLORS[currentPlayer]];
 
+    if (currentTokens) {
+        const allTokensInYard = currentTokens.every(token => token.stepsTraveled === 0);
+
+        if (diceValue !== 6 && allTokensInYard) {
+            setStatus(`${playerColorName} rolled a ${diceValue}. Need a 6 to leave base!`);
+            
+            setTimeout(() => {
+                diceValue = null; 
+                nextTurn(); // Safely pass the turn to Green!
+            }, 1200);
+            return;
+        }
+    } else {
+        if (diceValue !== 6) {
+            setTimeout(() => {
+                diceValue = null;
+                nextTurn();
+            }, 1200);
+            return;
+        }
+    }
 }
 
 function handleTokenClick(color, tokenId) {
