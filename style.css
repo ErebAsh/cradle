@@ -318,7 +318,7 @@ main {
       138,
       0.15);
 
-  color: #93c5fd;
+  color: #1e3a8a;
 
   font-size: 0.75rem;
   font-weight: 600;
@@ -342,7 +342,7 @@ main {
 
   margin-top: 1rem;
 
-  color: #93c5fd;
+  color: #1e3a8a;
   text-decoration: none;
 
   font-weight: 600;
@@ -351,7 +351,7 @@ main {
 }
 
 .project-link:hover {
-  color: #dbeafe;
+  color: #1d4ed8;
   transform: translateX(4px);
 }
 
@@ -372,12 +372,12 @@ footer {
 }
 
 .footer-link {
-  color: #93c5fd;
+  color: #1e3a8a;
   text-decoration: none;
 }
 
 .footer-link:hover {
-  color: #dbeafe;
+  color: #1d4ed8;
 }
 
 ::-webkit-scrollbar {
