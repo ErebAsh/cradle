@@ -65,3 +65,7 @@ Before getting started, please read our [Contributing Guide](CONTRIBUTING.md) fo
 ## 📄 License
 
 This project is licensed under the **MIT License**. See the [LICENSE](LICENSE) file for details.
+
+
+## Very Important Note
+Don't forget to start the repo if you're visiting this(⁠~⁠￣⁠³⁠￣⁠)⁠~

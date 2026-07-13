@@ -128,6 +128,10 @@ html.light-theme .bg-gray-800\/20 {
   background-color: rgba(243, 244, 246, 0.2) !important;
 }
 
+html.light-theme .bg-gray-800\/60 {
+  background-color: #d1d5db !important;
+}
+
 html.light-theme .bg-gray-950\/40 {
   background-color: rgba(245, 247, 250, 0.4) !important;
 }
@@ -176,4 +180,27 @@ html.light-theme select:focus {
 
 html.light-theme canvas {
   background-color: #f5f7fa !important;
+}
+
+/* Fix table header colors for Light Mode */
+html.light-theme thead tr.text-gray-400 th {
+  color: #1f2937 !important;
+  /* Default dark text */
+}
+
+/* Keep semantic header colors with darker shades */
+html.light-theme thead tr.text-gray-400 th.text-cyan-400 {
+  color: #0f766e !important;
+}
+
+html.light-theme thead tr.text-gray-400 th.text-amber-400 {
+  color: #b45309 !important;
+}
+
+html.light-theme thead tr.text-gray-400 th.text-purple-400 {
+  color: #7c3aed !important;
+}
+
+html.light-theme thead tr.text-gray-400 th.text-emerald-400 {
+  color: #047857 !important;
 }
