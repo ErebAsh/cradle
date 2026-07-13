@@ -57,7 +57,7 @@ body {
   box-shadow: 0 8px 24px rgba(0, 0, 0, 0.25);
 }
 
-a {
+#loadBtn {
   position: relative;
   display: inline-block;
 
@@ -65,9 +65,13 @@ a {
   height: 55px;
 
   text-decoration: none;
+  cursor: pointer;
+  border: none;
+  background: transparent;
+  outline: none;
 }
 
-a i {
+#loadBtn i {
   position: absolute;
   inset: -2px;
 
@@ -84,11 +88,11 @@ a i {
   );
 }
 
-a i:nth-child(2) {
+#loadBtn i:nth-child(2) {
   filter: blur(12px);
 }
 
-a span {
+#loadBtn span {
   position: absolute;
   inset: 1px;
 
@@ -106,7 +110,7 @@ a span {
   border-radius: 5px;
 }
 
-a span::before {
+#loadBtn span::before {
   content: '';
 
   position: absolute;
