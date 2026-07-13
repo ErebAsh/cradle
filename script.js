@@ -2,14 +2,13 @@ const projectsGrid = document.getElementById("projects-grid");
 const searchInput = document.getElementById("search");
 const categoriesContainer = document.getElementById("categories");
 const projectCount = document.getElementById("project-count");
+const clearFiltersBtn = document.getElementById("clear-filters");
 
 let allProjects = [];
 let selectedCategory = "all";
 
 function initTheme() {
-  const savedTheme =
-    localStorage.getItem("theme") || "dark";
-
+  const savedTheme = localStorage.getItem("theme") || "dark";
   setTheme(savedTheme);
 }
 
@@ -22,10 +21,7 @@ function setTheme(theme) {
 
     if (themeBtn) {
       themeBtn.innerHTML = "☀️";
-      themeBtn.setAttribute(
-        "aria-label",
-        "Switch to dark theme"
-      );
+      themeBtn.setAttribute("aria-label", "Switch to dark theme");
     }
 
     localStorage.setItem("theme", "light");
@@ -34,10 +30,7 @@ function setTheme(theme) {
 
     if (themeBtn) {
       themeBtn.innerHTML = "🌙";
-      themeBtn.setAttribute(
-        "aria-label",
-        "Switch to light theme"
-      );
+      themeBtn.setAttribute("aria-label", "Switch to light theme");
     }
 
     localStorage.setItem("theme", "dark");
@@ -45,11 +38,7 @@ function setTheme(theme) {
 }
 
 function toggleTheme() {
-  const isLight =
-    document.documentElement.classList.contains(
-      "light-theme"
-    );
-
+  const isLight = document.documentElement.classList.contains("light-theme");
   setTheme(isLight ? "dark" : "light");
 }
 
@@ -67,18 +56,14 @@ async function loadProjects() {
     renderProjects(allProjects);
   } catch (error) {
     console.error(error);
-
-    projectsGrid.innerHTML =
-      "<p>Failed to load projects.</p>";
+    projectsGrid.innerHTML = "<p>Failed to load projects.</p>";
   }
 }
 
 function renderCategories() {
   const categories = [
     "all",
-    ...new Set(
-      allProjects.map(project => project.category)
-    )
+    ...new Set(allProjects.map(project => project.category))
   ];
 
   categoriesContainer.innerHTML = "";
@@ -91,7 +76,6 @@ function renderCategories() {
         ? "category-btn active"
         : "category-btn";
 
-    // Standardize text to uppercase and swap dashes with spaces or hyphens gracefully
     btn.textContent = category.toUpperCase().replace("-", " ");
 
     btn.onclick = () => {
@@ -106,13 +90,10 @@ function renderCategories() {
 }
 
 function renderProjects(projects) {
-  projectCount.textContent =
-    `${projects.length} projects`;
+  projectCount.textContent = `${projects.length} projects`;
 
   if (!projects.length) {
-    projectsGrid.innerHTML =
-      "<p>No projects found.</p>";
-
+    projectsGrid.innerHTML = "<p>No projects found.</p>";
     return;
   }
 
@@ -132,7 +113,7 @@ function renderProjects(projects) {
           ${project.path}
         </p>
 
-        <a
+        
           class="project-link"
           href="${project.path}"
           target="_blank"
@@ -147,34 +128,44 @@ function renderProjects(projects) {
 }
 
 function applyFilters() {
-  const query =
-    searchInput.value
-      .toLowerCase()
-      .trim();
+  const query = searchInput.value.toLowerCase().trim();
 
   const filtered = allProjects.filter(
     project =>
       (selectedCategory === "all" ||
         project.category === selectedCategory) &&
-      project.title
-        .toLowerCase()
-        .includes(query)
+      project.title.toLowerCase().includes(query)
   );
 
   renderProjects(filtered);
+  updateClearButtonVisibility(query);
 }
 
-searchInput.addEventListener(
-  "input",
-  applyFilters
-);
+function updateClearButtonVisibility(query) {
+  const hasActiveFilters = query !== "" || selectedCategory !== "all";
 
-document.addEventListener(
-  "DOMContentLoaded",
-  () => {
-    initTheme();
-    loadProjects();
+  if (clearFiltersBtn) {
+    clearFiltersBtn.hidden = !hasActiveFilters;
   }
-);
+}
+
+function clearFilters() {
+  searchInput.value = "";
+  selectedCategory = "all";
+
+  applyFilters();
+  renderCategories();
+}
+
+searchInput.addEventListener("input", applyFilters);
+
+if (clearFiltersBtn) {
+  clearFiltersBtn.addEventListener("click", clearFilters);
+}
+
+document.addEventListener("DOMContentLoaded", () => {
+  initTheme();
+  loadProjects();
+});
 
 window.toggleTheme = toggleTheme;
