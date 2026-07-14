@@ -6,6 +6,14 @@ const projectCount = document.getElementById("project-count");
 let allProjects = [];
 let selectedCategory = "all";
 
+let filterWorker;
+if (window.Worker) {
+  filterWorker = new Worker('./scripts/worker.js');
+  filterWorker.onmessage = function(e) {
+    renderProjects(e.data);
+  };
+}
+
 function initTheme() {
   const savedTheme =
     localStorage.getItem("theme") || "dark";
@@ -53,23 +61,74 @@ function toggleTheme() {
   setTheme(isLight ? "dark" : "light");
 }
 
+function openDB() {
+  return new Promise((resolve, reject) => {
+    const request = indexedDB.open("CradleDB", 1);
+    request.onerror = () => reject(request.error);
+    request.onsuccess = () => resolve(request.result);
+    request.onupgradeneeded = (event) => {
+      const db = event.target.result;
+      if (!db.objectStoreNames.contains("projectsStore")) {
+        db.createObjectStore("projectsStore", { keyPath: "id" });
+      }
+    };
+  });
+}
+
+function getCachedProjects(db) {
+  return new Promise((resolve, reject) => {
+    const transaction = db.transaction(["projectsStore"], "readonly");
+    const store = transaction.objectStore("projectsStore");
+    const request = store.get("projects");
+    request.onerror = () => reject(request.error);
+    request.onsuccess = () => resolve(request.result ? request.result.data : null);
+  });
+}
+
+async function fetchAndCacheProjects(db) {
+  const response = await fetch("./data/projects.json");
+  if (!response.ok) {
+    throw new Error("Failed to load projects");
+  }
+  const data = await response.json();
+  allProjects = data;
+  
+  if (db) {
+    const transaction = db.transaction(["projectsStore"], "readwrite");
+    const store = transaction.objectStore("projectsStore");
+    store.put({ id: "projects", data: data });
+  }
+  return data;
+}
+
 async function loadProjects() {
   try {
-    const response = await fetch("./data/projects.json");
-
-    if (!response.ok) {
-      throw new Error("Failed to load projects");
+    let db;
+    try {
+      db = await openDB();
+      const cachedProjects = await getCachedProjects(db);
+      if (cachedProjects && cachedProjects.length > 0) {
+        allProjects = cachedProjects;
+        renderCategories();
+        renderProjects(allProjects);
+        // Background update
+        fetchAndCacheProjects(db).then(() => {
+          renderCategories();
+          applyFilters(); // Re-apply current filters with fresh data
+        }).catch(console.error);
+        return;
+      }
+    } catch (e) {
+      console.warn("IndexedDB error:", e);
     }
-
-    allProjects = await response.json();
-
+    
+    await fetchAndCacheProjects(db);
     renderCategories();
     renderProjects(allProjects);
+    
   } catch (error) {
     console.error(error);
-
-    projectsGrid.innerHTML =
-      "<p>Failed to load projects.</p>";
+    projectsGrid.innerHTML = "<p>Failed to load projects.</p>";
   }
 }
 
@@ -152,16 +211,23 @@ function applyFilters() {
       .toLowerCase()
       .trim();
 
-  const filtered = allProjects.filter(
-    project =>
-      (selectedCategory === "all" ||
-        project.category === selectedCategory) &&
-      project.title
-        .toLowerCase()
-        .includes(query)
-  );
-
-  renderProjects(filtered);
+  if (filterWorker) {
+    filterWorker.postMessage({
+      allProjects: allProjects,
+      selectedCategory: selectedCategory,
+      query: query
+    });
+  } else {
+    const filtered = allProjects.filter(
+      project =>
+        (selectedCategory === "all" ||
+          project.category === selectedCategory) &&
+        project.title
+          .toLowerCase()
+          .includes(query)
+    );
+    renderProjects(filtered);
+  }
 }
 
 searchInput.addEventListener(
