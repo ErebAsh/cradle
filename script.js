@@ -7,6 +7,14 @@ const clearFiltersBtn = document.getElementById("clear-filters");
 let allProjects = [];
 let selectedCategory = "all";
 
+let filterWorker;
+if (window.Worker) {
+  filterWorker = new Worker("./scripts/worker.js");
+  filterWorker.onmessage = function (e) {
+    renderProjects(e.data);
+  };
+}
+
 function initTheme() {
   const savedTheme = localStorage.getItem("theme") || "dark";
   setTheme(savedTheme);
@@ -42,15 +50,92 @@ function toggleTheme() {
   setTheme(isLight ? "dark" : "light");
 }
 
+function openDB() {
+  return new Promise((resolve, reject) => {
+    const request = indexedDB.open("CradleDB", 1);
+
+    request.onerror = () => reject(request.error);
+
+    request.onsuccess = () => resolve(request.result);
+
+    request.onupgradeneeded = (event) => {
+      const db = event.target.result;
+
+      if (!db.objectStoreNames.contains("projectsStore")) {
+        db.createObjectStore("projectsStore", {
+          keyPath: "id",
+        });
+      }
+    };
+  });
+}
+
+function getCachedProjects(db) {
+  return new Promise((resolve, reject) => {
+    const transaction = db.transaction(["projectsStore"], "readonly");
+    const store = transaction.objectStore("projectsStore");
+    const request = store.get("projects");
+
+    request.onerror = () => reject(request.error);
+
+    request.onsuccess = () =>
+      resolve(request.result ? request.result.data : null);
+  });
+}
+
+async function fetchAndCacheProjects(db) {
+  const response = await fetch("./data/projects.json");
+
+  if (!response.ok) {
+    throw new Error("Failed to load projects");
+  }
+
+  const data = await response.json();
+  allProjects = data;
+
+  if (db) {
+    const transaction = db.transaction(["projectsStore"], "readwrite");
+    const store = transaction.objectStore("projectsStore");
+
+    store.put({
+      id: "projects",
+      data: data,
+    });
+  }
+
+  return data;
+}
+
 async function loadProjects() {
   try {
-    const response = await fetch("./data/projects.json");
+    let db;
 
-    if (!response.ok) {
-      throw new Error("Failed to load projects");
+    try {
+      db = await openDB();
+
+      const cachedProjects = await getCachedProjects(db);
+
+      if (cachedProjects && cachedProjects.length > 0) {
+        allProjects = cachedProjects;
+
+        renderCategories();
+        renderProjects(allProjects);
+
+        // Background update
+        fetchAndCacheProjects(db)
+          .then(() => {
+            renderCategories();
+            applyFilters();
+          })
+          .catch(console.error);
+
+        return;
+      }
+    } catch (e) {
+      console.warn("IndexedDB error:", e);
     }
 
-    allProjects = await response.json();
+    await fetchAndCacheProjects(db);
 
     renderCategories();
     renderProjects(allProjects);
@@ -63,12 +148,12 @@ async function loadProjects() {
 function renderCategories() {
   const categories = [
     "all",
-    ...new Set(allProjects.map(project => project.category))
+    ...new Set(allProjects.map((project) => project.category)),
   ];
 
   categoriesContainer.innerHTML = "";
 
-  categories.forEach(category => {
+  categories.forEach((category) => {
     const btn = document.createElement("button");
 
     btn.className =
@@ -80,7 +165,6 @@ function renderCategories() {
 
     btn.onclick = () => {
       selectedCategory = category;
-
       applyFilters();
       renderCategories();
     };
@@ -99,7 +183,7 @@ function renderProjects(projects) {
 
   projectsGrid.innerHTML = projects
     .map(
-      project => `
+      (project) => `
       <article class="project-card">
         <div class="project-category">
           ${project.category}
@@ -113,7 +197,7 @@ function renderProjects(projects) {
           ${project.path}
         </p>
 
-        
+        <a
           class="project-link"
           href="${project.path}"
           target="_blank"
@@ -130,19 +214,29 @@ function renderProjects(projects) {
 function applyFilters() {
   const query = searchInput.value.toLowerCase().trim();
 
-  const filtered = allProjects.filter(
-    project =>
-      (selectedCategory === "all" ||
-        project.category === selectedCategory) &&
-      project.title.toLowerCase().includes(query)
-  );
+  if (filterWorker) {
+    filterWorker.postMessage({
+      allProjects,
+      selectedCategory,
+      query,
+    });
+  } else {
+    const filtered = allProjects.filter(
+      (project) =>
+        (selectedCategory === "all" ||
+          project.category === selectedCategory) &&
+        project.title.toLowerCase().includes(query)
+    );
 
-  renderProjects(filtered);
+    renderProjects(filtered);
+  }
+
   updateClearButtonVisibility(query);
 }
 
 function updateClearButtonVisibility(query) {
-  const hasActiveFilters = query !== "" || selectedCategory !== "all";
+  const hasActiveFilters =
+    query !== "" || selectedCategory !== "all";
 
   if (clearFiltersBtn) {
     clearFiltersBtn.hidden = !hasActiveFilters;
