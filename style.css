@@ -71,6 +71,7 @@ body,
 .category-btn,
 .theme-toggle,
 #search,
+.clear-filters-btn,
 footer {
   transition:
     background-color var(--transition),
@@ -161,12 +162,17 @@ html.light-theme .hero h1 {
 .search-container {
   max-width: 650px;
   margin: 1.5rem auto 0;
+
+  display: flex;
+  align-items: center;
+  gap: 0.75rem;
 }
 
 .search-wrapper {
   position: relative;
   display: flex;
   align-items: center;
+  flex: 1;
 }
 
 .search-icon {
@@ -186,7 +192,6 @@ html.light-theme .hero h1 {
 #search {
   width: 100%;
   padding: 1rem 1.25rem 1rem 3rem;
-  /* changed: added left padding for icon */
 
   border: 1px solid var(--border);
   border-radius: 14px;
@@ -208,6 +213,32 @@ html.light-theme .hero h1 {
 
   box-shadow:
     0 0 0 4px rgba(37, 99, 235, 0.15);
+}
+
+.clear-filters-btn {
+  flex-shrink: 0;
+
+  padding: 0.7rem 1.1rem;
+
+  border: 1px solid var(--border);
+  border-radius: 999px;
+
+  background: var(--card);
+  color: var(--muted);
+
+  font-size: 0.85rem;
+  font-family: inherit;
+  white-space: nowrap;
+
+  cursor: pointer;
+
+  transition: var(--transition);
+}
+
+.clear-filters-btn:hover {
+  border-color: var(--accent-hover);
+  color: var(--text);
+  transform: translateY(-2px);
 }
 
 main {
@@ -318,7 +349,7 @@ main {
       138,
       0.15);
 
-  color: #1e3a8a;
+  color: #93c5fd;
 
   font-size: 0.75rem;
   font-weight: 600;
@@ -342,7 +373,7 @@ main {
 
   margin-top: 1rem;
 
-  color: #1e3a8a;
+  color: #93c5fd;
   text-decoration: none;
 
   font-weight: 600;
@@ -351,7 +382,7 @@ main {
 }
 
 .project-link:hover {
-  color: #1d4ed8;
+  color: #dbeafe;
   transform: translateX(4px);
 }
 
@@ -372,12 +403,12 @@ footer {
 }
 
 .footer-link {
-  color: #1e3a8a;
+  color: #93c5fd;
   text-decoration: none;
 }
 
 .footer-link:hover {
-  color: #1d4ed8;
+  color: #dbeafe;
 }
 
 ::-webkit-scrollbar {
@@ -405,6 +436,15 @@ footer {
   .hero-actions {
     top: 1rem;
     right: 1rem;
+  }
+
+  .search-container {
+    flex-direction: column;
+    align-items: stretch;
+  }
+
+  .clear-filters-btn {
+    align-self: center;
   }
 
   .section-header {

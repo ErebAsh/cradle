@@ -2,22 +2,21 @@ const projectsGrid = document.getElementById("projects-grid");
 const searchInput = document.getElementById("search");
 const categoriesContainer = document.getElementById("categories");
 const projectCount = document.getElementById("project-count");
+const clearFiltersBtn = document.getElementById("clear-filters");
 
 let allProjects = [];
 let selectedCategory = "all";
 
 let filterWorker;
 if (window.Worker) {
-  filterWorker = new Worker('./scripts/worker.js');
-  filterWorker.onmessage = function(e) {
+  filterWorker = new Worker("./scripts/worker.js");
+  filterWorker.onmessage = function (e) {
     renderProjects(e.data);
   };
 }
 
 function initTheme() {
-  const savedTheme =
-    localStorage.getItem("theme") || "dark";
-
+  const savedTheme = localStorage.getItem("theme") || "dark";
   setTheme(savedTheme);
 }
 
@@ -30,10 +29,7 @@ function setTheme(theme) {
 
     if (themeBtn) {
       themeBtn.innerHTML = "☀️";
-      themeBtn.setAttribute(
-        "aria-label",
-        "Switch to dark theme"
-      );
+      themeBtn.setAttribute("aria-label", "Switch to dark theme");
     }
 
     localStorage.setItem("theme", "light");
@@ -42,10 +38,7 @@ function setTheme(theme) {
 
     if (themeBtn) {
       themeBtn.innerHTML = "🌙";
-      themeBtn.setAttribute(
-        "aria-label",
-        "Switch to light theme"
-      );
+      themeBtn.setAttribute("aria-label", "Switch to light theme");
     }
 
     localStorage.setItem("theme", "dark");
@@ -53,23 +46,25 @@ function setTheme(theme) {
 }
 
 function toggleTheme() {
-  const isLight =
-    document.documentElement.classList.contains(
-      "light-theme"
-    );
-
+  const isLight = document.documentElement.classList.contains("light-theme");
   setTheme(isLight ? "dark" : "light");
 }
 
 function openDB() {
   return new Promise((resolve, reject) => {
     const request = indexedDB.open("CradleDB", 1);
+
     request.onerror = () => reject(request.error);
+
     request.onsuccess = () => resolve(request.result);
+
     request.onupgradeneeded = (event) => {
       const db = event.target.result;
+
       if (!db.objectStoreNames.contains("projectsStore")) {
-        db.createObjectStore("projectsStore", { keyPath: "id" });
+        db.createObjectStore("projectsStore", {
+          keyPath: "id",
+        });
       }
     };
   });
@@ -80,52 +75,70 @@ function getCachedProjects(db) {
     const transaction = db.transaction(["projectsStore"], "readonly");
     const store = transaction.objectStore("projectsStore");
     const request = store.get("projects");
+
     request.onerror = () => reject(request.error);
-    request.onsuccess = () => resolve(request.result ? request.result.data : null);
+
+    request.onsuccess = () =>
+      resolve(request.result ? request.result.data : null);
   });
 }
 
 async function fetchAndCacheProjects(db) {
   const response = await fetch("./data/projects.json");
+
   if (!response.ok) {
     throw new Error("Failed to load projects");
   }
+
   const data = await response.json();
   allProjects = data;
-  
+
   if (db) {
     const transaction = db.transaction(["projectsStore"], "readwrite");
     const store = transaction.objectStore("projectsStore");
-    store.put({ id: "projects", data: data });
+
+    store.put({
+      id: "projects",
+      data: data,
+    });
   }
+
   return data;
 }
 
 async function loadProjects() {
   try {
     let db;
+
     try {
       db = await openDB();
+
       const cachedProjects = await getCachedProjects(db);
+
       if (cachedProjects && cachedProjects.length > 0) {
         allProjects = cachedProjects;
+
         renderCategories();
         renderProjects(allProjects);
+
         // Background update
-        fetchAndCacheProjects(db).then(() => {
-          renderCategories();
-          applyFilters(); // Re-apply current filters with fresh data
-        }).catch(console.error);
+        fetchAndCacheProjects(db)
+          .then(() => {
+            renderCategories();
+            applyFilters();
+          })
+          .catch(console.error);
+
         return;
       }
     } catch (e) {
       console.warn("IndexedDB error:", e);
     }
-    
+
     await fetchAndCacheProjects(db);
+
     renderCategories();
     renderProjects(allProjects);
-    
   } catch (error) {
     console.error(error);
     projectsGrid.innerHTML = "<p>Failed to load projects.</p>";
@@ -135,14 +148,12 @@ async function loadProjects() {
 function renderCategories() {
   const categories = [
     "all",
-    ...new Set(
-      allProjects.map(project => project.category)
-    )
+    ...new Set(allProjects.map((project) => project.category)),
   ];
 
   categoriesContainer.innerHTML = "";
 
-  categories.forEach(category => {
+  categories.forEach((category) => {
     const btn = document.createElement("button");
 
     btn.className =
@@ -150,12 +161,10 @@ function renderCategories() {
         ? "category-btn active"
         : "category-btn";
 
-    // Standardize text to uppercase and swap dashes with spaces or hyphens gracefully
     btn.textContent = category.toUpperCase().replace("-", " ");
 
     btn.onclick = () => {
       selectedCategory = category;
-
       applyFilters();
       renderCategories();
     };
@@ -165,19 +174,16 @@ function renderCategories() {
 }
 
 function renderProjects(projects) {
-  projectCount.textContent =
-    `${projects.length} projects`;
+  projectCount.textContent = `${projects.length} projects`;
 
   if (!projects.length) {
-    projectsGrid.innerHTML =
-      "<p>No projects found.</p>";
-
+    projectsGrid.innerHTML = "<p>No projects found.</p>";
     return;
   }
 
   projectsGrid.innerHTML = projects
     .map(
-      project => `
+      (project) => `
       <article class="project-card">
         <div class="project-category">
           ${project.category}
@@ -206,41 +212,54 @@ function renderProjects(projects) {
 }
 
 function applyFilters() {
-  const query =
-    searchInput.value
-      .toLowerCase()
-      .trim();
+  const query = searchInput.value.toLowerCase().trim();
 
   if (filterWorker) {
     filterWorker.postMessage({
-      allProjects: allProjects,
-      selectedCategory: selectedCategory,
-      query: query
+      allProjects,
+      selectedCategory,
+      query,
     });
   } else {
     const filtered = allProjects.filter(
-      project =>
+      (project) =>
         (selectedCategory === "all" ||
           project.category === selectedCategory) &&
-        project.title
-          .toLowerCase()
-          .includes(query)
+        project.title.toLowerCase().includes(query)
     );
+
     renderProjects(filtered);
+  }
+
+  updateClearButtonVisibility(query);
+}
+
+function updateClearButtonVisibility(query) {
+  const hasActiveFilters =
+    query !== "" || selectedCategory !== "all";
+
+  if (clearFiltersBtn) {
+    clearFiltersBtn.hidden = !hasActiveFilters;
   }
 }
 
-searchInput.addEventListener(
-  "input",
-  applyFilters
-);
+function clearFilters() {
+  searchInput.value = "";
+  selectedCategory = "all";
 
-document.addEventListener(
-  "DOMContentLoaded",
-  () => {
-    initTheme();
-    loadProjects();
-  }
-);
+  applyFilters();
+  renderCategories();
+}
+
+searchInput.addEventListener("input", applyFilters);
+
+if (clearFiltersBtn) {
+  clearFiltersBtn.addEventListener("click", clearFilters);
+}
+
+document.addEventListener("DOMContentLoaded", () => {
+  initTheme();
+  loadProjects();
+});
 
 window.toggleTheme = toggleTheme;
