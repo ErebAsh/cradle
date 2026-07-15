@@ -1,10 +1,10 @@
-# cradle ⟵⁠(⁠o⁠_⁠O⁠)
+# Cradle ⟵⁠(⁠o⁠_⁠O⁠)
 
 A personal collection of small ideas, experiments, and geeky projects I'm exploring and building.
 
 ## What this repository contains
 
-Projectz is a repository for my small ideas, experiments and lightweight prototypes. It contains runnable demos, maybe eventually some short technical notes and utility scripts intended for rapid iteration and learning.
+Cradle is a repository for my small ideas, experiments and lightweight prototypes. It contains runnable demos, maybe eventually some short technical notes and utility scripts intended for rapid iteration and learning.
 
 ## Each project folder would include:
 - a short `README.md` describing the goal and how to run or test it,  
