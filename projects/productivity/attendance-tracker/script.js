@@ -132,25 +132,33 @@ function render() {
   });
 
   // Render Log Items cleanly without innerHTML compilation loops
-  data.logs
-    .slice(-15)
-    .reverse()
-    .forEach((log) => {
-      const logDiv = document.createElement('div');
-      logDiv.className = 'history-item';
+  if (data.logs.length === 0) {
+    // Show empty state when there are no history entries
+    const emptyMsg = document.createElement('p');
+    emptyMsg.className = 'history-empty';
+    emptyMsg.textContent = 'No attendance history yet.';
+    logBox.appendChild(emptyMsg);
+  } else {
+    data.logs
+      .slice(-15)
+      .reverse()
+      .forEach((log) => {
+        const logDiv = document.createElement('div');
+        logDiv.className = 'history-item';
 
-      const spanSub = document.createElement('span');
-      const bSub = document.createElement('b');
-      bSub.textContent = log.sub; // Safe text injection
-      spanSub.appendChild(bSub);
+        const spanSub = document.createElement('span');
+        const bSub = document.createElement('b');
+        bSub.textContent = log.sub; // Safe text injection
+        spanSub.appendChild(bSub);
 
-      const spanType = document.createElement('span');
-      spanType.textContent = log.type;
+        const spanType = document.createElement('span');
+        spanType.textContent = log.type;
 
-      logDiv.appendChild(spanSub);
-      logDiv.appendChild(spanType);
-      logBox.appendChild(logDiv);
-    });
+        logDiv.appendChild(spanSub);
+        logDiv.appendChild(spanType);
+        logBox.appendChild(logDiv);
+      });
+  }
 
   localStorage.setItem('att_v5', JSON.stringify(data));
 
@@ -295,6 +303,14 @@ function removeSub(i) {
     data.subjects.splice(i, 1);
     render();
   }
+}
+
+// Clears all stored attendance history and refreshes the history list
+function clearHistory() {
+  if (!confirm('Are you sure you want to clear all history?')) return;
+
+  data.logs = [];
+  render();
 }
 
 render();

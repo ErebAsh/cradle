@@ -104,6 +104,36 @@ td {
   justify-content: space-between;
 }
 
+.history-header {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  margin-bottom: 12px;
+}
+
+.history-header h3 {
+  margin: 0;
+}
+
+.btn-clear-history {
+  background: #fee2e2;
+  color: var(--danger);
+  font-size: 0.8rem;
+  padding: 6px 12px;
+}
+
+.btn-clear-history:hover {
+  background: var(--danger);
+  color: #ffffff;
+}
+
+.history-empty {
+  margin: 12px 0 0;
+  color: #94a3b8;
+  font-size: 0.85rem;
+  text-align: center;
+}
+
 .modal-overlay {
   display: none;
   position: fixed;
