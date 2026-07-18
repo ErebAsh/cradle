@@ -54,17 +54,98 @@ Before working on an issue:
 
 ## Adding a New Project
 
-If you're contributing a new project:
+If you're contributing a new project, follow the repository's existing structure and keep the addition focused and self-contained.
 
-- Place it inside the appropriate category under the `projects/` directory.
-- Include a `README.md` that explains:
-  - Project overview
-  - Features
-  - Installation (if required)
-  - Usage instructions
-- Keep the project self-contained.
-- Include dependency files where applicable (`package.json`, `requirements.txt`, etc.).
-- Ensure the project runs using the provided instructions.
+### Where to place it
+
+Create a new folder under the appropriate category in the `projects/` directory. Categories already include:
+
+- `projects/aiml/`
+- `projects/dev-tools/`
+- `projects/games/`
+- `projects/misc/`
+- `projects/productivity/`
+
+Each new project should live in its own subfolder under one of those categories.
+
+Example:
+
+```text
+projects/games/your-project-name/
+```
+
+### Recommended project structure
+
+A new project should usually live in its own folder with only the files it needs. A simple structure might look like this:
+
+```text
+project-name/
+├── index.html
+├── style.css
+├── script.js
+├── README.md
+├── preview.png
+└── assets/
+    ├── images/
+    ├── icons/
+    └── other-assets/
+```
+
+Use this as a guideline rather than a strict requirement:
+
+- `index.html` — the entry point for browser-based projects.
+- `style.css` — project-specific styling where applicable.
+- `script.js` — project behavior and logic where applicable.
+- `README.md` — short documentation covering what the project does, how to use it, and any relevant controls or credits.
+- `preview.png` — a preview image when it helps the project feel complete and easier to recognize.
+- `assets/` — project-specific images, icons, fonts, or other supporting resources.
+
+Keep the project self-contained whenever possible. Avoid adding unrelated global files unless the change truly belongs to the project.
+
+### Naming conventions
+
+- Use lowercase folder names with hyphens when possible.
+- Use descriptive, readable names that match the project purpose.
+- Prefer names that are easy to understand when browsing the repository.
+
+### Documentation requirements
+
+Every new project should include a `README.md` inside its own folder.
+
+A useful README usually includes:
+
+- A short description of the project
+- Key features or gameplay
+- How to open or run it locally
+- Controls or interaction details if relevant
+- Any credits or dependencies used
+
+### Assets and static files
+
+- Store project-specific assets inside the project's own folder.
+- Keep the asset layout simple and predictable.
+- Avoid referencing remote assets unless they are already used elsewhere in the repository and are appropriate for the project.
+
+### Code organization
+
+- Keep the project-specific code isolated within its own folder.
+- Use clear and descriptive file names.
+- Keep the implementation readable and maintainable.
+- Avoid unnecessary global styles or scripts that affect other projects.
+- Add comments for non-obvious logic when helpful.
+
+### New Project Checklist
+
+Before opening a Pull Request, review the following checklist:
+
+- [ ] The project is placed in the correct category directory.
+- [ ] The project folder has a clear and descriptive name.
+- [ ] Project-specific files are organized within the project folder.
+- [ ] Assets are stored in an appropriate location.
+- [ ] README documentation has been added where appropriate.
+- [ ] The project works correctly locally.
+- [ ] Existing projects and unrelated files were not unnecessarily modified.
+- [ ] The project follows the repository's contribution guidelines.
 
 ---
 
