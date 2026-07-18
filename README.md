@@ -68,4 +68,4 @@ This project is licensed under the **MIT License**. See the [LICENSE](LICENSE) f
 
 
 ## Very Important Note
-Don't forget to start the repo if you're visiting this(⁠~⁠￣⁠³⁠￣⁠)⁠~
+Don't forget to leave a star behind for the repo if you're visiting this
