@@ -88,6 +88,7 @@
         align-items: flex-start;
         gap: var(--cradle-space-3, 12px);
         padding: var(--cradle-space-5, 20px) var(--cradle-space-5, 20px) 0;
+        flex-shrink: 0;
       }
 
       .cradle-card__icon {
@@ -116,9 +117,7 @@
         color: var(--cradle-text, #f3f4f6);
         font-family: var(--cradle-font-body, 'Space Grotesk', system-ui, sans-serif);
         line-height: 1.3;
-        white-space: nowrap;
-        overflow: hidden;
-        text-overflow: ellipsis;
+        overflow-wrap: break-word;
       }
 
       .cradle-card__badge {
@@ -162,6 +161,8 @@
         gap: var(--cradle-space-3, 12px);
         padding: 0 var(--cradle-space-5, 20px) var(--cradle-space-5, 20px);
         flex-wrap: wrap;
+        margin-top: auto;
+        flex-shrink: 0;
       }
 
       .cradle-card__footer--left    { justify-content: flex-start; }
