@@ -1,117 +1,123 @@
 <!DOCTYPE html>
 <html lang="en">
+
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Dot Game</title>
     <link rel="stylesheet" href="style.css">
 </head>
+
 <body>
 
-<div class="container">
+    <div class="container">
 
-    <header class="card">
-        <h1>Dot Game</h1>
-        <p>Build, Explode, Conquer</p>
-    </header>
+        <header class="card">
 
-    <section class="card controls">
+            <div class="header-top">
+                <h1>Dot Game</h1>
+               <div class="header-top"
+                <button id="themeToggle" class="theme-toggle-btn p-2 rounded-lg hover:bg-gray-800 transition">
+                    🌙
+                </button>
+                </div>
+            </div>
 
-        <div class="control-group">
-            <label for="gameMode">
-                Mode
-            </label>
-            <select id="gameMode">
-                <option value="pvp" selected>Player vs Player</option>
-                <option value="pvai">Player vs AI</option>
-            </select>
-        </div>
+            <p>Build, Explode, Conquer</p>
 
-        <div class="control-group" id="difficultyGroup">
-            <label for="difficulty">
-                Difficulty
-            </label>
-            <select id="difficulty">
-                <option value="easy">Easy</option>
-                <option value="medium">Medium</option>
-                <option value="hard" selected>Hard</option>
-            </select>
-        </div>
+        </header>
+        <section class="card controls">
 
-        <div class="control-group">
-            <label for="playerCount">
-                Players
-            </label>
+            <div class="control-group">
+                <label for="gameMode">
+                    Mode
+                </label>
+                <select id="gameMode">
+                    <option value="pvp" selected>Player vs Player</option>
+                    <option value="pvai">Player vs AI</option>
+                </select>
+            </div>
 
-            <select id="playerCount">
-                <option value="2">2 Players</option>
-                <option value="3">3 Players</option>
-                <option value="4" selected>4 Players</option>
-            </select>
-        </div>
+            <div class="control-group" id="difficultyGroup">
+                <label for="difficulty">
+                    Difficulty
+                </label>
+                <select id="difficulty">
+                    <option value="easy">Easy</option>
+                    <option value="medium">Medium</option>
+                    <option value="hard" selected>Hard</option>
+                </select>
+            </div>
 
-        <div class="control-group">
-            <label for="gridPreset">
-                Grid Size:
-                <span id="gridValue">
-                    8 × 8
-                </span>
-            </label>
+            <div class="control-group">
+                <label for="playerCount">
+                    Players
+                </label>
 
-            <select id="gridPreset">
-                <option value="3">3 × 3</option>
-                <option value="5">5 × 5</option>
-                <option value="8" selected>8 × 8</option>
-                <option value="custom">Custom</option>
-            </select>
-            
-            <input
-                type="number"
-                id="gridCustom"
-                min="2"
-                max="12"
-                value="10"
-                style="display: none; margin-top: 5px;"
-                placeholder="2-12"
-            >
-        </div>
+                <select id="playerCount">
+                    <option value="2">2 Players</option>
+                    <option value="3">3 Players</option>
+                    <option value="4" selected>4 Players</option>
+                </select>
+            </div>
 
-        <button id="newGame" class="btn">
-            New Game
-        </button>
+            <div class="control-group">
+                <label for="gridPreset">
+                    Grid Size:
+                    <span id="gridValue">
+                        8 × 8
+                    </span>
+                </label>
 
-        <button id="hintBtn" class="btn">
-            Hint
-        </button>
+                <select id="gridPreset">
+                    <option value="3">3 × 3</option>
+                    <option value="5">5 × 5</option>
+                    <option value="8" selected>8 × 8</option>
+                    <option value="custom">Custom</option>
+                </select>
 
-    </section>
+                <input type="number" id="gridCustom" min="2" max="12" value="10" style="display: none; margin-top: 5px;"
+                    placeholder="2-12">
+            </div>
 
-    <section class="card status-bar">
-        Turn:
-        <span id="currentPlayer">
-            Red
-        </span>
-    </section>
+            <button id="newGame" class="btn">
+                New Game
+            </button>
 
-    <section id="boardWrapper" class="card">
-        <div id="board"></div>
-    </section>
+            <button id="hintBtn" class="btn">
+                Hint
+            </button>
 
-    <section class="card">
-        <h2>Player Stats</h2>
-        <div id="playerStats"></div>
-    </section>
+        </section>
 
-    <section class="card analytics-section">
-        <h2>Match Analytics</h2>
-        <div id="analyticsContainer">
-            <p class="empty-state">No completed games yet.</p>
-        </div>
-    </section>
+        <section class="card status-bar">
+            Turn:
+            <span id="currentPlayer">
+                Red
+            </span>
+        </section>
 
-</div>
-<script src="../../../projects/back-to-home.js" defer></script>
-<script src="script.js"></script>
+        <section id="boardWrapper" class="card">
+            <div id="board"></div>
+        </section>
+
+        <section class="card">
+            <h2>Player Stats</h2>
+            <div id="playerStats"></div>
+        </section>
+
+        <section class="card analytics-section">
+            <h2>Match Analytics</h2>
+            <div id="analyticsContainer">
+                <p class="empty-state">No completed games yet.</p>
+            </div>
+        </section>
+
+    </div>
+    <script src="../../../projects/back-to-home.js" defer></script>
+    <script type="module" src="../../../scripts/theme.js"></script>
+    <script type="module" src="script.js"></script>
 
 </body>
+
 </html>

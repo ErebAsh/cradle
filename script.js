@@ -1,3 +1,5 @@
+import { initTheme, toggleTheme } from "./scripts/theme.js";
+
 const projectsGrid = document.getElementById("projects-grid");
 const searchInput = document.getElementById("search");
 const categoriesContainer = document.getElementById("categories");
@@ -13,41 +15,6 @@ if (window.Worker) {
   filterWorker.onmessage = function (e) {
     renderProjects(e.data);
   };
-}
-
-function initTheme() {
-  const savedTheme = localStorage.getItem("theme") || "dark";
-  setTheme(savedTheme);
-}
-
-function setTheme(theme) {
-  const html = document.documentElement;
-  const themeBtn = document.getElementById("themeToggle");
-
-  if (theme === "light") {
-    html.classList.add("light-theme");
-
-    if (themeBtn) {
-      themeBtn.innerHTML = "☀️";
-      themeBtn.setAttribute("aria-label", "Switch to dark theme");
-    }
-
-    localStorage.setItem("theme", "light");
-  } else {
-    html.classList.remove("light-theme");
-
-    if (themeBtn) {
-      themeBtn.innerHTML = "🌙";
-      themeBtn.setAttribute("aria-label", "Switch to light theme");
-    }
-
-    localStorage.setItem("theme", "dark");
-  }
-}
-
-function toggleTheme() {
-  const isLight = document.documentElement.classList.contains("light-theme");
-  setTheme(isLight ? "dark" : "light");
 }
 
 function openDB() {

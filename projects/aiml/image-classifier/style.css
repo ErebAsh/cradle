@@ -31,6 +31,25 @@
         );
 }
 
+html.light-theme {
+    --bg: #f8fafc;
+    --bg-secondary: #e2e8f0;
+
+    --card: rgba(255, 255, 255, 0.92);
+    --card-hover: rgba(248, 250, 252, 0.98);
+
+    --border: #d1d5db;
+
+    --text: #111827;
+    --text-secondary: #475569;
+    --muted: #64748b;
+
+    --accent: #2563eb;
+    --accent-hover: #1d4ed8;
+
+    --shadow: rgba(0, 0, 0, 0.12);
+}
+
 body {
     min-height: 100vh;
 

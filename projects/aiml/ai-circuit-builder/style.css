@@ -8,15 +8,7 @@
   --accent-blue: #3b82f6;
 }
 
-html.light-theme {
-  --bg-primary: #ffffff;
-  --bg-secondary: #f9fafb;
-  --bg-tertiary: #f3f4f6;
-  --text-primary: #111827;
-  --text-secondary: #4b5563;
-  --border-color: #e5e7eb;
-  --accent-blue: #2563eb;
-}
+
 
 body {
   font-family: 'Inter', system-ui, sans-serif;
@@ -97,6 +89,19 @@ html.light-theme {
 html.light-theme body {
   background-color: #f5f7fa;
   color: #1f2937;
+}
+
+
+/* Light theme (default) */
+body {
+    color: #ffffff;
+    background: #ffffff;
+}
+
+/* Dark theme */
+body.dark {
+    color: #f8fafc;
+    background: #0f172a;
 }
 
 html.light-theme .bg-gray-950 {

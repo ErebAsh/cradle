@@ -96,6 +96,32 @@ function renderBoard() {
     }
 }
 
+function initTheme() {
+  const savedTheme = localStorage.getItem('neuralforge_theme') || 'dark';
+  setTheme(savedTheme);
+}
+
+function setTheme(theme) {
+  const html = document.documentElement;
+  const themeBtn = document.getElementById('themeToggle');
+  
+  if (theme === 'light') {
+    html.classList.add('light-theme');
+    if (themeBtn) themeBtn.innerHTML = '<i class="fas fa-sun text-orange-400"></i>';
+    localStorage.setItem('neuralforge_theme', 'light');
+  } else {
+    html.classList.remove('light-theme');
+    if (themeBtn) themeBtn.innerHTML = '<i class="fas fa-moon text-yellow-400"></i>';
+    localStorage.setItem('neuralforge_theme', 'dark');
+  }
+}
+
+function toggleTheme() {
+  const html = document.documentElement;
+  const isLight = html.classList.contains('light-theme');
+  setTheme(isLight ? 'dark' : 'light');
+}
+
 function clearHint() {
     for (let r = 0; r < boardSize; r++) {
         for (let c = 0; c < boardSize; c++) {

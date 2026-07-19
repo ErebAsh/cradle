@@ -3,6 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    
     <title>AI Image Classifier</title>
     <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@300;400;500;600;700&display=swap"
         rel="stylesheet">
@@ -21,6 +22,10 @@
                     AI Powered
                 </div>
                 <h1> AI Image Classifier</h1>
+                 <button id="themeToggle" class="theme-toggle-btn p-2 rounded-lg hover:bg-gray-800 transition"
+            title="Toggle dark/light theme" aria-label="Toggle theme">
+            🌙
+          </button>
                 <p class="subtitle">
                     Upload any image and let AI identify objects instantly with smart AI predictions.
                 </p>
@@ -85,6 +90,7 @@
         </div>
     </div>
      <script src="../../../projects/back-to-home.js" defer></script>
-    <script src="script.js"></script>
+     <script type="module" src="../../../scripts/theme.js"></script>
+    <script type="module" src="script.js"></script>
 </body>
 </html>
