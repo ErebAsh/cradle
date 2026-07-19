@@ -9,6 +9,15 @@ function render() {
   body.innerHTML = '';
   logBox.innerHTML = '';
 
+  const stats = calculateStats(data.subjects);
+  const overallPctEl = document.getElementById('overallAttendance');
+  const totalCondEl = document.getElementById('totalConducted');
+  const belowTgtEl = document.getElementById('belowTargetCount');
+
+  if (overallPctEl) overallPctEl.textContent = `${stats.overallPercentage}%`;
+  if (totalCondEl) totalCondEl.textContent = stats.totalConducted;
+  if (belowTgtEl) belowTgtEl.textContent = stats.belowTargetCount;
+
   data.subjects.forEach((s, i) => {
     const targetPct = s.target || 80;
     const targetDec = targetPct / 100;
@@ -210,25 +219,46 @@ function exportCSV() {
     alert("No data to export.");
     return;
   }
-  
-  let csvContent = "data:text/csv;charset=utf-8,";
-  csvContent += "Subject,Total Classes,Present,Absent,Current %,Target %\n";
-  
-  data.subjects.forEach(s => {
-    const conducted = s.p + s.a;
-    const currentPct = conducted === 0 ? 0 : ((s.p / conducted) * 100).toFixed(1);
-    csvContent += `"${s.name}",${s.total},${s.p},${s.a},${currentPct}%,${s.target}%\n`;
-  });
-  
-  const encodedUri = encodeURI(csvContent);
+  const csv = exportToCSV(data.subjects);
+  const blob = new Blob([csv], { type: 'text/csv;charset=utf-8;' });
   const link = document.createElement("a");
-  link.setAttribute("href", encodedUri);
-  link.setAttribute("download", "attendance_logs.csv");
+  link.href = URL.createObjectURL(blob);
+  link.setAttribute("download", "attendance_data.csv");
   document.body.appendChild(link);
-  
   link.click();
   document.body.removeChild(link);
 }
+
+function triggerImport() {
+  const fileInput = document.getElementById("csvFileInput");
+  if (fileInput) fileInput.click();
+}
+
+function importCSV(event) {
+  const file = event.target.files[0];
+  if (!file) return;
+
+  const reader = new FileReader();
+  reader.onload = function(e) {
+    const text = e.target.result;
+    const imported = parseCSV(text);
+    if (imported && imported.length > 0) {
+      if (confirm(`Are you sure you want to import ${imported.length} subjects? This will overwrite your current list.`)) {
+        data.subjects = imported;
+        data.logs.push({
+          sub: "All Subjects",
+          type: "Imported CSV",
+          date: new Date().toLocaleTimeString()
+        });
+        render();
+      }
+    } else {
+      alert("No valid subject data found in CSV.");
+    }
+  };
+  reader.readAsText(file);
+}
+
 
 function openModal() {
   document.getElementById('addModal').style.display = 'flex';

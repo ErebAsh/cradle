@@ -5,9 +5,8 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Attendance Pro</title>
-    <link rel="stylesheet" href="style.css">
+    <link rel="stylesheet" href="styles.css">
     <link rel="stylesheet" href="../../../src/components/ui/tokens.css">
-   
 </head>
 
 <body>
@@ -24,8 +23,20 @@
                     data-left-icon="⬇"
                     onclick="exportCSV()"
                 >
-                    Export Data
+                    Export CSV
                 </button>
+
+                <button
+                    class="btn-import-action"
+                    data-cradle-btn
+                    data-variant="outline"
+                    data-size="sm"
+                    data-left-icon="⬆"
+                    onclick="triggerImport()"
+                >
+                    Import CSV
+                </button>
+                <input type="file" id="csvFileInput" accept=".csv" style="display:none" onchange="importCSV(event)">
 
                 <button
                     data-cradle-btn
@@ -36,6 +47,21 @@
                 >
                     New Subject
                 </button>
+            </div>
+        </div>
+
+        <div class="stats-dashboard" id="statsDashboard">
+            <div class="stat-card">
+                <span class="stat-label">Overall Attendance</span>
+                <strong class="stat-value" id="overallAttendance">0%</strong>
+            </div>
+            <div class="stat-card">
+                <span class="stat-label">Total Conducted</span>
+                <strong class="stat-value" id="totalConducted">0</strong>
+            </div>
+            <div class="stat-card">
+                <span class="stat-label">Below Target</span>
+                <strong class="stat-value" id="belowTargetCount">0</strong>
             </div>
         </div>
 
@@ -115,6 +141,7 @@
 <script src="../../../src/components/ui/Button/Button.js"></script>
 <script src="../../../src/components/ui/Card/Card.js"></script>
 <script src="../../../src/components/ui/BackToHome/BackToHome.js" defer></script>
+<script src="data-handler.js"></script>
 <script src="script.js"></script>
 </body>
 
