@@ -14,7 +14,7 @@ Features include legal move generation (including castling, en passant, and pawn
 chess/
 ├── index.html      # Page shell, board grid, side panel, controls
 ├── chessLogic.js   # All chess rules — no DOM access
-├── aiWorker.js     # AI engine running inside a Web Worker
+├── ai-worker.js    # AI engine running inside a Web Worker
 ├── script.js       # UI layer — rendering, event handling, game flow
 └── style.css       # Visual styling and responsive layout
 ```
@@ -22,7 +22,7 @@ chess/
 The three JavaScript files have distinct responsibilities and are never interchangeable:
 
 - `chessLogic.js` — pure chess rules, no DOM
-- `aiWorker.js` — imports `chessLogic.js` and runs the minimax search off the main thread
+- `ai-worker.js` — imports `chessLogic.js` and runs the minimax search off the main thread
 - `script.js` — reads from both, owns the DOM
 
 ---
@@ -88,7 +88,7 @@ Key functions:
 | `findKing(board, color)` | Locates the king of a given colour |
 | `cloneBoard(board)` | Deep copies the board (used before simulating moves) |
 
-### `aiWorker.js`
+### `ai-worker.js`
 Runs the computer opponent. It imports `chessLogic.js` for move generation and board manipulation, then implements:
 
 - **`evaluateBoard(board, color)`** — scores a position using piece values and a piece-square table (PST) that rewards central control.
@@ -161,7 +161,7 @@ updateGameState()
   └─ if AI mode + Black's turn → triggerAI()
         ↓
 triggerAI()
-  ├─ create Web Worker (aiWorker.js)
+  ├─ create Web Worker (ai-worker.js)
   ├─ postMessage({ board, color, depth, enPassantTarget })
   └─ worker.onmessage → makeMove(bestMove)
         ↓
@@ -182,7 +182,7 @@ The `Outfit` font (referenced in the CSS) is the system sans-serif fallback; it 
 
 None. The project uses only native browser APIs:
 
-- **Web Workers** (`new Worker('aiWorker.js')`) for off-thread AI computation.
+- **Web Workers** (`new Worker('ai-worker.js')`) for off-thread AI computation.
 - **`navigator.clipboard`** for the Copy PGN feature.
 
 ---

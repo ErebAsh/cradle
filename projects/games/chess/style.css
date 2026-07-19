@@ -544,3 +544,53 @@ h1 {
         padding: 6px 8px;
     }
 }
+
+.fen-panel {
+    display: flex;
+    flex-direction: column;
+    gap: 8px;
+    background: var(--panel);
+    border: 1px solid var(--line);
+    border-radius: 8px;
+    padding: 12px;
+    margin-top: 8px;
+}
+
+.fen-title {
+    font-size: 0.85rem;
+    font-weight: 700;
+    color: var(--muted);
+}
+
+.fen-input-wrapper input {
+    width: 100%;
+    padding: 8px 10px;
+    background: #ffffff;
+    border: 1px solid var(--line);
+    border-radius: 6px;
+    font-family: monospace;
+    font-size: 0.85rem;
+}
+
+.fen-buttons {
+    display: grid;
+    grid-template-columns: 1fr 1fr;
+    gap: 8px;
+}
+
+.fen-buttons button {
+    cursor: pointer;
+    font-weight: 600;
+    font-size: 0.82rem;
+    padding: 8px;
+    border: 1px solid var(--line);
+    border-radius: 6px;
+    background: var(--accent);
+    color: #ffffff;
+    transition: opacity 150ms ease;
+}
+
+.fen-buttons button:hover {
+    opacity: 0.9;
+}
+
