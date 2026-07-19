@@ -238,3 +238,22 @@ function attacksSquare(position, fromRow, fromCol, targetRow, targetCol) {
     }
     return true;
 }
+
+if (typeof module !== 'undefined' && module.exports) {
+    module.exports = {
+        WHITE,
+        BLACK,
+        createPiece,
+        startPosition,
+        cloneBoard,
+        inside,
+        other,
+        getLegalMoves,
+        getAllLegalMoves,
+        getPseudoMoves,
+        applyMove,
+        findKing,
+        isSquareAttacked
+    };
+}
+

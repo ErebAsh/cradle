@@ -229,7 +229,7 @@ function triggerAI() {
         aiWorker.terminate();
     }
     
-    aiWorker = new Worker('aiWorker.js');
+    aiWorker = new Worker('ai-worker.js');
     aiWorker.onmessage = function(e) {
         isComputerThinking = false;
         const bestMove = e.data;
@@ -433,4 +433,116 @@ document.getElementById("gameMode").addEventListener("change", (e) => {
     checkTriggerAI();
 });
 
+function boardToFEN() {
+    let fen = [];
+    for (let r = 0; r < 8; r++) {
+        let empty = 0;
+        let rowStr = "";
+        for (let c = 0; c < 8; c++) {
+            const piece = board[r][c];
+            if (!piece) {
+                empty++;
+            } else {
+                if (empty > 0) {
+                    rowStr += empty;
+                    empty = 0;
+                }
+                let char = piece.type === "knight" ? "n" : piece.type.charAt(0);
+                if (piece.color === WHITE) {
+                    rowStr += char.toUpperCase();
+                } else {
+                    rowStr += char.toLowerCase();
+                }
+            }
+        }
+        if (empty > 0) {
+            rowStr += empty;
+        }
+        fen.push(rowStr);
+    }
+    let turnChar = turn === WHITE ? "w" : "b";
+    return `${fen.join("/")} ${turnChar}`;
+}
+
+function loadFEN(fenString) {
+    try {
+        const parts = fenString.trim().split(/\s+/);
+        const position = parts[0];
+        const activeColor = parts[1] || "w";
+        
+        const rows = position.split("/");
+        if (rows.length !== 8) throw new Error("Invalid FEN row count");
+        
+        const newBoard = Array.from({ length: 8 }, () => Array(8).fill(null));
+        const charToType = {
+            p: "pawn", r: "rook", n: "knight", b: "bishop", q: "queen", k: "king"
+        };
+        
+        for (let r = 0; r < 8; r++) {
+            let c = 0;
+            const rowStr = rows[r];
+            for (let i = 0; i < rowStr.length; i++) {
+                const char = rowStr[i];
+                if (/[1-8]/.test(char)) {
+                    c += parseInt(char, 10);
+                } else {
+                    const color = char === char.toUpperCase() ? WHITE : BLACK;
+                    const type = charToType[char.toLowerCase()];
+                    if (!type) throw new Error("Invalid FEN character: " + char);
+                    newBoard[r][c] = { type, color, moved: false };
+                    c++;
+                }
+            }
+            if (c !== 8) throw new Error(`Row ${r} has ${c} columns instead of 8`);
+        }
+        
+        cancelAI();
+        board = newBoard;
+        turn = activeColor === "w" ? WHITE : BLACK;
+        selected = null;
+        legalTargets = [];
+        history = [];
+        redoStack = [];
+        capturedByWhite = [];
+        capturedByBlack = [];
+        enPassantTarget = null;
+        gameOver = false;
+        setStatus(`${capitalize(turn)} to move from custom FEN position.`);
+        render();
+        checkTriggerAI();
+        return true;
+    } catch (e) {
+        alert("Error loading FEN: " + e.message);
+        return false;
+    }
+}
+
+const loadFENBtn = document.getElementById("loadFEN");
+if (loadFENBtn) {
+    loadFENBtn.addEventListener("click", () => {
+        const input = document.getElementById("fenInput").value;
+        if (input) {
+            loadFEN(input);
+        } else {
+            alert("Please enter a FEN string.");
+        }
+    });
+}
+
+const copyFENBtn = document.getElementById("copyFEN");
+if (copyFENBtn) {
+    copyFENBtn.addEventListener("click", () => {
+        const fen = boardToFEN();
+        document.getElementById("fenInput").value = fen;
+        navigator.clipboard.writeText(fen).then(() => {
+            const originalText = copyFENBtn.innerHTML;
+            copyFENBtn.innerHTML = `Copied!`;
+            setTimeout(() => copyFENBtn.innerHTML = originalText, 2000);
+        }).catch(() => {
+            alert("Failed to copy FEN.");
+        });
+    });
+}
+
 newGame();
+
