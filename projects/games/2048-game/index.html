@@ -4,7 +4,7 @@
   <meta charset="UTF-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
   <title>2048</title>
-  <link rel="stylesheet" href="style.css" />
+  <link rel="stylesheet" href="styles.css" />
   <link rel="stylesheet" href="../../../src/components/ui/tokens.css" />
 </head>
 <body>
@@ -28,7 +28,14 @@
       </header>
 
       <section class="controls" aria-label="Game controls">
-        <p class="instructions">Use the arrow keys to slide the tiles. Merge matching numbers to grow your score.</p>
+        <div class="grid-size-selector">
+          <label for="gridSize">Grid Size: </label>
+          <select id="gridSize" class="size-select">
+            <option value="3">3x3</option>
+            <option value="4" selected>4x4</option>
+            <option value="5">5x5</option>
+          </select>
+        </div>
         <button
           id="restartBtn"
           type="button"
@@ -49,6 +56,7 @@
   <script src="../../../src/components/ui/Button/Button.js"></script>
   <script src="../../../src/components/ui/BackToHome/BackToHome.js" defer></script>
   <script src="logic.js"></script>
+  <script src="storage.js"></script>
   <script src="script.js"></script>
 </body>
 </html>

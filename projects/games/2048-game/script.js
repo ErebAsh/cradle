@@ -1,6 +1,3 @@
-// The 2048 UI is intentionally small and self-contained so it fits the
-// repository's pattern of single-page, browser-only mini-games.
-
 const logic = window.__2048Logic;
 const { createInitialState, moveGameState } = logic || {};
 
@@ -9,12 +6,32 @@ const scoreElement = document.getElementById('scoreValue');
 const bestScoreElement = document.getElementById('bestScoreValue');
 const statusElement = document.getElementById('status');
 const restartButton = document.getElementById('restartBtn');
+const gridSizeSelect = document.getElementById('gridSize');
 
-const STORAGE_KEY = 'cradle-2048-best-score';
+let currentSize = 4;
+let state = null;
 
-let bestScore = Number(localStorage.getItem(STORAGE_KEY) || 0);
-let state = createInitialState();
-state.bestScore = bestScore;
+function initGame() {
+  if (gridSizeSelect) {
+    currentSize = parseInt(gridSizeSelect.value, 10);
+  }
+  
+  // Try loading saved state
+  const saved = loadGameState(currentSize);
+  if (saved) {
+    state = saved;
+  } else {
+    state = createInitialState(currentSize);
+  }
+  
+  // Load best score
+  state.bestScore = getBestScore(currentSize);
+  
+  // Update board grid layout
+  boardElement.style.gridTemplateColumns = `repeat(${currentSize}, 1fr)`;
+  
+  renderBoard();
+}
 
 function renderBoard() {
   boardElement.innerHTML = '';
@@ -29,9 +46,9 @@ function renderBoard() {
   });
 
   scoreElement.textContent = state.score;
-  bestScore = Math.max(bestScore, state.score);
-  state.bestScore = bestScore;
-  bestScoreElement.textContent = bestScore;
+  saveBestScore(state.size, state.score);
+  state.bestScore = getBestScore(state.size);
+  bestScoreElement.textContent = state.bestScore;
 
   if (state.won) {
     statusElement.textContent = 'You reached 2048. Keep going or restart for a fresh run.';
@@ -39,13 +56,6 @@ function renderBoard() {
     statusElement.textContent = 'No moves left. Press restart to play again.';
   } else {
     statusElement.textContent = 'Use the arrow keys to move the tiles.';
-  }
-}
-
-function persistBestScore() {
-  if (state.score > bestScore) {
-    bestScore = state.score;
-    localStorage.setItem(STORAGE_KEY, String(bestScore));
   }
 }
 
@@ -57,12 +67,14 @@ function handleMove(direction) {
   }
 
   state = nextState;
-  persistBestScore();
+  saveGameState(state.size, state);
+  saveBestScore(state.size, state.score);
   renderBoard();
 }
 
 function restartGame() {
-  state = createInitialState();
+  clearGameState(currentSize);
+  state = createInitialState(currentSize);
   renderBoard();
 }
 
@@ -87,7 +99,17 @@ function handleKeydown(event) {
   handleMove(direction);
 }
 
+if (gridSizeSelect) {
+  gridSizeSelect.addEventListener('change', () => {
+    // Save current game state of the previous size before switching
+    if (state) {
+      saveGameState(currentSize, state);
+    }
+    initGame();
+  });
+}
+
 restartButton.addEventListener('click', restartGame);
 document.addEventListener('keydown', handleKeydown);
 
-renderBoard();
+initGame();

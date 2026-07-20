@@ -76,6 +76,37 @@ h1 {
   margin-bottom: 16px;
 }
 
+.grid-size-selector {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+}
+
+.grid-size-selector label {
+  font-size: 0.95rem;
+  color: #cbd5e1;
+  font-weight: 500;
+}
+
+.size-select {
+  padding: 8px 16px;
+  background: rgba(148, 163, 184, 0.16);
+  border: 1px solid rgba(255, 255, 255, 0.1);
+  border-radius: 999px;
+  color: white;
+  font-family: inherit;
+  font-size: 0.95rem;
+  font-weight: 600;
+  outline: none;
+  cursor: pointer;
+}
+
+.size-select option {
+  background: #1e293b;
+  color: white;
+}
+
+
 .instructions {
   margin: 0;
   font-size: 0.95rem;

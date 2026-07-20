@@ -9,15 +9,20 @@
 
   root.__2048Logic = api;
 }(typeof globalThis !== 'undefined' ? globalThis : this, function () {
-  function createInitialState(random = Math.random) {
-    const board = Array.from({ length: 4 }, () => Array(4).fill(0));
+  function createInitialState(size = 4, random = Math.random) {
+    if (typeof size === 'function') {
+      random = size;
+      size = 4;
+    }
+    const board = Array.from({ length: size }, () => Array(size).fill(0));
     const state = {
       board,
       score: 0,
       bestScore: 0,
       won: false,
       over: false,
-      moved: false
+      moved: false,
+      size: size
     };
 
     addRandomTile(state, random);
@@ -48,7 +53,7 @@
     return board.map((row) => [...row]);
   }
 
-  function collapseLine(line) {
+  function collapseLine(line, size = 4) {
     const compacted = line.filter((value) => value !== 0);
     const merged = [];
     let scoreGain = 0;
@@ -67,7 +72,7 @@
       }
     }
 
-    while (merged.length < 4) {
+    while (merged.length < size) {
       merged.push(0);
     }
 
@@ -84,7 +89,7 @@
     if (direction === 'left' || direction === 'right') {
       for (let row = 0; row < rows; row += 1) {
         const sourceLine = direction === 'left' ? board[row] : [...board[row]].reverse();
-        const { line: mergedLine, scoreGain: lineScore } = collapseLine(sourceLine);
+        const { line: mergedLine, scoreGain: lineScore } = collapseLine(sourceLine, cols);
         scoreGain += lineScore;
         const targetLine = direction === 'left' ? mergedLine : mergedLine.reverse();
 
@@ -102,7 +107,7 @@
       const sourceLine = direction === 'up'
         ? board.map((currentRow) => currentRow[col])
         : board.map((currentRow) => currentRow[col]).reverse();
-      const { line: mergedLine, scoreGain: lineScore } = collapseLine(sourceLine);
+      const { line: mergedLine, scoreGain: lineScore } = collapseLine(sourceLine, rows);
       scoreGain += lineScore;
       const targetLine = direction === 'up' ? mergedLine : mergedLine.reverse();
 
@@ -125,7 +130,8 @@
       bestScore: state.bestScore,
       won: state.won,
       over: state.over,
-      moved: false
+      moved: false,
+      size: state.size || state.board.length
     };
 
     const { board: movedBoard, scoreGain, moved } = moveBoard(next.board, direction);
