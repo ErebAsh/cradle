@@ -1,4 +1,4 @@
-const emojis = { rock: "🪨", paper: "📄", scissors: "✂️" };
+const emojis = { rock: "🪨", paper: "📄", scissors: "✂️", lizard: "🦎", spock: "🖖" };
 const choicesList = ["rock", "paper", "scissors"];
 
 let playerScore = 0;
@@ -8,6 +8,10 @@ let gameMode = 1;
 let targetWins = 1;
 let playerTournamentWins = 0;
 let computerTournamentWins = 0;
+
+let currentRulesMode = "classic";
+let gestureStats = { rock: 0, paper: 0, scissors: 0, lizard: 0, spock: 0 };
+let totalRounds = 0;
 
 const choiceBtns = document.querySelectorAll(".choice-btn");
 const playerPickEl = document.getElementById("playerPick");
@@ -26,6 +30,69 @@ const victoryModal = document.getElementById("victoryModal");
 const modalTitle = document.getElementById("modalTitle");
 const modalMessage = document.getElementById("modalMessage");
 const playAgainBtn = document.getElementById("playAgainBtn");
+
+const rulesModeSelect = document.getElementById("rulesMode");
+if (rulesModeSelect) {
+  rulesModeSelect.addEventListener("change", (e) => {
+    currentRulesMode = e.target.value;
+    updateModeUI();
+  });
+}
+
+function updateModeUI() {
+  const isLizardSpock = (currentRulesMode === "lizard-spock");
+  choicesList.length = 0;
+  
+  const lizardBtn = document.getElementById("lizardBtn");
+  const spockBtn = document.getElementById("spockBtn");
+
+  if (isLizardSpock) {
+    choicesList.push("rock", "paper", "scissors", "lizard", "spock");
+    if (lizardBtn) lizardBtn.style.display = "inline-flex";
+    if (spockBtn) spockBtn.style.display = "inline-flex";
+    document.querySelectorAll(".lizard-stat").forEach(el => el.style.display = "block");
+    document.querySelectorAll(".spock-stat").forEach(el => el.style.display = "block");
+    document.querySelectorAll(".lizard-how").forEach(el => el.style.display = "block");
+    document.querySelectorAll(".spock-how").forEach(el => el.style.display = "block");
+  } else {
+    choicesList.push("rock", "paper", "scissors");
+    if (lizardBtn) lizardBtn.style.display = "none";
+    if (spockBtn) spockBtn.style.display = "none";
+    document.querySelectorAll(".lizard-stat").forEach(el => el.style.display = "none");
+    document.querySelectorAll(".spock-stat").forEach(el => el.style.display = "none");
+    document.querySelectorAll(".lizard-how").forEach(el => el.style.display = "none");
+    document.querySelectorAll(".spock-how").forEach(el => el.style.display = "none");
+  }
+  resetTournament();
+}
+
+function recordGesture(choice) {
+  if (gestureStats[choice] !== undefined) {
+    gestureStats[choice]++;
+    totalRounds++;
+    updateStatsUI();
+  }
+}
+
+function updateStatsUI() {
+  if (totalRounds === 0) return;
+  ["rock", "paper", "scissors", "lizard", "spock"].forEach(key => {
+    const el = document.getElementById(key + "Pct");
+    if (el) {
+      const pct = ((gestureStats[key] / totalRounds) * 100).toFixed(0);
+      el.textContent = `${pct}%`;
+    }
+  });
+}
+
+function resetStats() {
+  gestureStats = { rock: 0, paper: 0, scissors: 0, lizard: 0, spock: 0 };
+  totalRounds = 0;
+  ["rock", "paper", "scissors", "lizard", "spock"].forEach(key => {
+    const el = document.getElementById(key + "Pct");
+    if (el) el.textContent = "0%";
+  });
+}
 
 modeBtns.forEach(btn => {
   btn.addEventListener("click", () => {
@@ -103,7 +170,7 @@ function startCountdown(playerChoice) {
       clearInterval(interval);
       playerPickEl.classList.remove("shake");
       computerPickEl.classList.remove("shake");
-      const computerChoice = choicesList[Math.floor(Math.random() * 3)];
+      const computerChoice = choicesList[Math.floor(Math.random() * choicesList.length)];
       playGame(playerChoice, computerChoice);
     }
   }, 400);
@@ -119,15 +186,14 @@ function playGame(player, computer) {
     computerPickEl.classList.remove("pop");
   }, 400);
 
-  if (player === computer) {
-    resultText.textContent = "🤝 It's a Tie!";
+  recordGesture(player);
+  const result = determineWinner(player, computer);
+
+  if (result.outcome === "tie") {
+    resultText.textContent = "🤝 " + result.message;
     streak = 0;
-  } else if (
-    (player === "rock" && computer === "scissors") ||
-    (player === "paper" && computer === "rock") ||
-    (player === "scissors" && computer === "paper")
-  ) {
-    resultText.textContent = "🎉 You Win!";
+  } else if (result.outcome === "player") {
+    resultText.textContent = "🎉 " + result.message;
     playerScore++;
     playerTournamentWins++;
     streak++;
@@ -135,7 +201,7 @@ function playGame(player, computer) {
     battleArena.classList.add("win-glow");
     if (gameMode === 1) launchConfetti();
   } else {
-    resultText.textContent = "💥 Computer Wins!";
+    resultText.textContent = "💥 " + result.message;
     computerScore++;
     computerTournamentWins++;
     streak = 0;
@@ -171,6 +237,7 @@ resetBtn.addEventListener("click", () => {
   streak = 0;
   playerTournamentWins = 0;
   computerTournamentWins = 0;
+  resetStats();
   renderTally();
   playerScoreEl.textContent = 0;
   computerScoreEl.textContent = 0;

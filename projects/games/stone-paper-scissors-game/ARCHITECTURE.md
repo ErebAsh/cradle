@@ -11,8 +11,9 @@ RPS Arena is a Rock Paper Scissors game with a cyberpunk visual theme. The playe
 ```
 stone-paper-scissors-game/
 ├── index.html   # Full page: navbar, game box, how-to section, footer, modal
+├── game-engine.js # Rules matrix for classic and Lizard-Spock modes
 ├── script.js    # All game logic, animations, and event handling
-└── style.css    # Cyberpunk visual theme, animations, responsive layout
+└── styles.css   # Cyberpunk visual theme, animations, responsive layout
 ```
 
 ---
@@ -186,8 +187,7 @@ No JavaScript libraries are used.
 
 ## Future Improvements
 
-- **Rock Paper Scissors Lizard Spock** — extend the `choicesList` array and win conditions to support the five-choice variant.
 - **Computer strategy** — replace the random computer choice with a simple frequency analysis of the player's past picks to make the opponent more challenging.
 - **Sound effects** — play audio cues for win, loss, and tie outcomes.
 - **Persistent stats** — save total wins, losses, and longest streak to `localStorage` for a cross-session leaderboard.
-- **Keyboard shortcuts** — allow `R`, `P`, `S` keys to make choices without using the mouse.
+- **Keyboard shortcuts** — allow `R`, `P`, `S`, `L`, `K` keys to make choices without using the mouse.

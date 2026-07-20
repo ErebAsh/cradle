@@ -5,7 +5,7 @@
 <title>RPS Arena | Rock Paper Scissors</title>
 <link rel="preconnect" href="https://fonts.googleapis.com">
 <link href="https://fonts.googleapis.com/css2?family=Orbitron:wght@600;800&family=Rajdhani:wght@500;600;700&display=swap" rel="stylesheet">
-<link rel="stylesheet" href="style.css">
+<link rel="stylesheet" href="styles.css">
 <link rel="stylesheet" href="../../../src/components/ui/tokens.css">
 </head>
 <body>
@@ -20,6 +20,14 @@
     <div class="game-box">
       <h1 class="title">BATTLE <span>ARENA</span></h1>
       <p class="subtitle">Choose your weapon and defeat the machine</p>
+
+      <div class="rules-mode-selector">
+        <label for="rulesMode">Rules Mode:</label>
+        <select id="rulesMode" class="form-select">
+          <option value="classic">Classic Rock-Paper-Scissors</option>
+          <option value="lizard-spock">Rock-Paper-Scissors-Lizard-Spock</option>
+        </select>
+      </div>
 
       <div class="mode-selector" id="modeSelector">
         <button class="mode-btn active" data-mode="1">Single Round</button>
@@ -44,6 +52,17 @@
         </div>
       </div>
 
+      <div class="stats-panel" id="statsPanel">
+        <span class="stats-title">Gesture Statistics (Player Picks)</span>
+        <div class="stats-grid">
+          <div class="stat-item">🪨 Rock: <span id="rockPct">0%</span></div>
+          <div class="stat-item">📄 Paper: <span id="paperPct">0%</span></div>
+          <div class="stat-item">✂️ Scissors: <span id="scissorsPct">0%</span></div>
+          <div class="stat-item lizard-stat" style="display:none">🦎 Lizard: <span id="lizardPct">0%</span></div>
+          <div class="stat-item spock-stat" style="display:none">🖖 Spock: <span id="spockPct">0%</span></div>
+        </div>
+      </div>
+
       <div class="battle-arena" id="battleArena">
         <div class="fighter" id="playerPick">❓</div>
         <div class="vs-text" id="vsText">VS</div>
@@ -56,6 +75,8 @@
         <button class="choice-btn" data-choice="rock">🪨<span>Rock</span></button>
         <button class="choice-btn" data-choice="paper">📄<span>Paper</span></button>
         <button class="choice-btn" data-choice="scissors">✂️<span>Scissors</span></button>
+        <button class="choice-btn" data-choice="lizard" id="lizardBtn" style="display:none">🦎<span>Lizard</span></button>
+        <button class="choice-btn" data-choice="spock" id="spockBtn" style="display:none">🖖<span>Spock</span></button>
       </div>
 
       <button id="resetBtn">🔄 Reset Score</button>
@@ -66,9 +87,11 @@
   <section id="how" class="how-section">
     <h2>How To Play</h2>
     <div class="how-cards">
-      <div class="how-card">🪨 <p>Rock crushes Scissors</p></div>
-      <div class="how-card">📄 <p>Paper covers Rock</p></div>
-      <div class="how-card">✂️ <p>Scissors cut Paper</p></div>
+      <div class="how-card">🪨 <p>Rock crushes Scissors / Lizard</p></div>
+      <div class="how-card">📄 <p>Paper covers Rock / disproves Spock</p></div>
+      <div class="how-card">✂️ <p>Scissors cuts Paper / decapitates Lizard</p></div>
+      <div class="how-card lizard-how" style="display:none">🦎 <p>Lizard poisons Spock / eats Paper</p></div>
+      <div class="how-card spock-how" style="display:none">🖖 <p>Spock smashes Scissors / vaporizes Rock</p></div>
     </div>
   </section>
 
@@ -90,6 +113,7 @@
   </div>
 <script src="../../../src/components/ui/Navbar/Navbar.js"></script>
 <script src="../../../src/components/ui/BackToHome/BackToHome.js" defer></script>
+<script src="game-engine.js"></script>
   <script src="script.js"></script>
   <script>
     (function () {
