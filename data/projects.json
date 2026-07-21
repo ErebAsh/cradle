@@ -63,5 +63,10 @@
     "title": "Stone Paper Scissors Game",
     "category": "games",
     "path": "projects/games/stone-paper-scissors-game/"
+  },
+  {
+    "title": "Time Blocking Planner",
+    "category": "productivity",
+    "path": "projects/productivity/time-blocking-planner/"
   }
 ]
