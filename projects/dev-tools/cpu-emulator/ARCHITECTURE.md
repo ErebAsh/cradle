@@ -1,53 +1,76 @@
-# ARCHITECTURE.md - CPU Emulator
+# CPU Emulator Architecture Documentation
 
-This document outlines the architecture, layout, and implementation details of the CPU Emulator mini-project located within the /dev-tools/ directory.
+## Overview
+The Core8 CPU Emulator is a virtual 8-bit pipelined CPU environment with a 16-byte RAM space, 4 general-purpose registers (A, B, C, D), Program Counter (PC), status flags (Zero and Carry), and a 5-stage instruction pipeline simulator.
 
----
+## System Architecture
 
-## 1. Overview
-The CPU Emulator is a web-based client-side application designed to visually simulate a basic Central Processing Unit (CPU) architecture. It allows users to write simple assembly-like instructions, execute them line by line, and observe real-time updates to CPU components including registers, the Program Counter (PC), the Instruction Register (IR), memory addresses, and status flags.
+```text
+┌─────────────────────────────────────────────────────────┐
+│                    Assembly Text IDE                    │
+└────────────────────────────┬────────────────────────────┘
+                             │
+                             ▼
+┌─────────────────────────────────────────────────────────┐
+│              Assembler Compiler (assembler.js)          │
+└────────────────────────────┬────────────────────────────┘
+                             │
+                             ▼
+┌─────────────────────────────────────────────────────────┐
+│               16-Byte System RAM Vector                 │
+└────────────────────────────┬────────────────────────────┘
+                             │
+                             ▼
+┌─────────────────────────────────────────────────────────┐
+│           Pipelined CPU Core Engine (emulatorCore.js)   │
+│  [IF] -> [ID] -> [EX (ALU / Logic)] -> [MEM] -> [WB]    │
+└────────────────────────────┬────────────────────────────┘
+                             │
+                             ▼
+┌─────────────────────────────────────────────────────────┐
+│            Interactive SVG & DOM Dashboard              │
+└─────────────────────────────────────────────────────────┘
+```
 
----
+## Hardware Specifications
+- **Word Size**: 8-bit data, 4-bit memory addresses (0x0 to 0xF).
+- **Registers**: `A` (Accumulator), `B`, `C`, `D` (8-bit width).
+- **Flags**:
+  - `Z` (Zero Flag): Set to 1 if the output of an ALU or bitwise operation is zero.
+  - `C` (Carry Flag): Set to 1 if an arithmetic operation overflows 255 or underflows 0.
+- **Pipeline Stages**:
+  1. `IF` (Instruction Fetch)
+  2. `ID` (Instruction Decode & Load-Use Hazard Detection)
+  3. `EX` (ALU/Logic Execution, Forwarding Resolution & Misprediction Flush)
+  4. `MEM` (RAM Read/Write)
+  5. `WB` (Register File Write Back)
 
-## 2. Technical Stack
-The project relies on a minimal, vanilla frontend stack to ensure fast execution and broad compatibility without build dependencies:
-* HTML5: Structure for the interactive control panel, code input editor, register tables, and system memory grid view.
-* CSS3: Layout formatting and dynamic execution state coloring (highlighting active execution lines, state flags, and modified register statuses).
-* JavaScript (ES6): Houses the instruction parser, memory management maps, register objects, execution controls, and UI DOM synchronization logic.
+## Opcodes & Instruction Set
+| Opcode (Hex) | Mnemonic | Format | Description |
+|---|---|---|---|
+| `0x00` | `HALT` | `HALT` | Stops CPU clock execution loop |
+| `0x01` | `MOV_LIT` | `MOV R, Lit` | Loads 8-bit immediate value into register |
+| `0x02` | `ADD` | `ADD R1, R2` | `R1 = (R1 + R2) & 0xFF`, updates Z and C flags |
+| `0x03` | `SUB` | `SUB R1, R2` | `R1 = (R1 - R2) & 0xFF`, updates Z and C flags |
+| `0x04` | `JMP` | `JMP Addr` | Unconditional jump to target RAM address |
+| `0x05` | `MOV_REG` | `MOV R1, R2` | Copies value of R2 into R1 |
+| `0x06` | `MOV_MEM_R` | `MOV R, [Addr]` | Reads RAM address into register |
+| `0x07` | `MOV_R_MEM` | `MOV [Addr], R` | Writes register value to RAM address |
+| `0x08` | `JNZ` | `JNZ Addr` | Jumps to target RAM address if Zero Flag Z == 0 |
+| `0x09` | `AND` | `AND R1, R2` | Bitwise AND between R1 and R2, stores in R1 |
+| `0x0A` | `OR` | `OR R1, R2` | Bitwise OR between R1 and R2, stores in R1 |
+| `0x0B` | `XOR` | `XOR R1, R2` | Bitwise XOR between R1 and R2, stores in R1 |
+| `0x0C` | `NOT` | `NOT R` | Bitwise NOT on register R |
+| `0x0D` | `INC` | `INC R` | Increments register R by 1 |
+| `0x0E` | `DEC` | `DEC R` | Decrements register R by 1 |
 
----
-
-## 3. Directory Structure
+## Folder Hierarchy
+```text
 projects/dev-tools/cpu-emulator/
-├── index.html     # Application interface layout and visual panels
-├── script.js      # Core instruction decoding loop and state management
-└── style.css      # User interface theme styles and animation states
-
----
-
-## 4. Architectural Core Components
-
-### A. State Management & Data Components
-The application encapsulates its operational hardware state inside a central JavaScript runtime object:
-* Registers: A fixed set of general-purpose virtual storage spaces (e.g., ACC, R0, R1, R2).
-* Program Counter (PC): Points directly to the index of the memory block containing the next instruction code line to execute.
-* Memory Array: A finite sequence representation modeling RAM where variables or immediate instructions are located.
-* Flags: Booleans representing system conditions like Zero (Z) or Sign/Negative (N) indicators updated post-ALU operations.
-
-### B. Execution Loop Process Flow
-The processor follows a traditional structural loop:
-1. Fetch: Reads the string literal instruction at the index specified by the Program Counter.
-2. Decode: Splits the instruction string into its constituent pieces: Opcode (Action) and Operands (Target registers, constants, or addresses).
-3. Execute: Matches the decoded Opcode via a conditional switch matrix, executing arithmetic, value moving, or jump flow modifications.
-4. Update UI: Reflects altered register rows, jumps PC highlights, and displays updated status flags dynamically to the user.
-
----
-
-## 5. Supported Instruction Set Architecture (ISA)
-
-The emulator supports standard operations including:
-* MOV [Dest] [Src] - Copies value from source to destination register or sets a literal value.
-* ADD [Reg] [Val] - Aggregates value into target register, updating status flags.
-* SUB [Reg] [Val] - Subtracts value from target register, updating status flags.
-* JMP [Line] - Updates Program Counter directly to create loops or branching scripts.
-* JZ [Line] - Conditional execution branch targeting another line if Zero Flag is true.
+├── ARCHITECTURE.md    # Architecture documentation
+├── assembler.js       # Assembly parser & byte code generator
+├── emulatorCore.js    # CPU execution state & opcode engine
+├── index.html         # User interface structure
+├── script.js          # DOM binding & animation layer
+└── style.css          # Theme styles & responsive CSS
+```

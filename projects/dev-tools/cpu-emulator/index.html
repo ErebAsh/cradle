@@ -18,6 +18,14 @@
         <main class="ide-panel">
             <header class="panel-header">
                 <h2> Assembly Editor</h2>
+                <div class="preset-controls">
+                    <select id="preset-selector" data-cradle-select style="padding: 4px 8px; border-radius: 4px; background: var(--bg-card); color: var(--text-main); border: 1px solid var(--border-color); font-size: 0.8rem;">
+                        <option value="default">Sample: Addition Loop</option>
+                        <option value="bitwise">Sample: Bitwise Logic (AND/OR/XOR)</option>
+                        <option value="memory">Sample: Memory Load/Store</option>
+                        <option value="incdec">Sample: Increment & Decrement</option>
+                    </select>
+                </div>
                 <div class="execution-controls">
                     <label class="toggle-label" style="display: flex; align-items: center; gap: 5px; margin-right: 15px; color: var(--text-light); font-size: 0.8rem; cursor: pointer;">
                         <input type="checkbox" id="chk-animate" checked>
@@ -37,8 +45,8 @@
 
             <footer class="console-log">
                 <div class="console-title">
-                     Compiler Output Logs</div>
-                <div id="console-output">System idle.Awaiting compilation pass...</div>
+                      Compiler Output Logs</div>
+                <div id="console-output">System idle. Awaiting compilation pass...</div>
             </footer>
         </main>
 
@@ -96,6 +104,8 @@
     </div>
  <script src="../../../src/components/ui/Button/Button.js"></script>
  <script src="../../../src/components/ui/BackToHome/BackToHome.js" defer></script>
+    <script src="emulatorCore.js"></script>
+    <script src="assembler.js"></script>
     <script src="script.js"></script>
 </body>
 
