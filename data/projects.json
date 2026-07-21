@@ -65,6 +65,11 @@
     "path": "projects/misc/periodic-table/"
   },
   {
+    "title": "Sound Wave Visualizer",
+    "category": "misc",
+    "path": "projects/misc/sound-wave-visualizer/"
+  },
+  {
     "title": "Stone Paper Scissors Game",
     "category": "games",
     "path": "projects/games/stone-paper-scissors-game/"
@@ -73,5 +78,10 @@
     "title": "Time Blocking Planner",
     "category": "productivity",
     "path": "projects/productivity/time-blocking-planner/"
+  },
+  {
+    "title": "Url Parser",
+    "category": "dev-tools",
+    "path": "projects/dev-tools/url-parser/"
   }
 ]
