@@ -60,6 +60,11 @@
     "path": "projects/aiml/neural-network-playground/"
   },
   {
+    "title": "Periodic Table",
+    "category": "misc",
+    "path": "projects/misc/periodic-table/"
+  },
+  {
     "title": "Stone Paper Scissors Game",
     "category": "games",
     "path": "projects/games/stone-paper-scissors-game/"
