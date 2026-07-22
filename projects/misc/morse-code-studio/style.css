@@ -1,0 +1,171 @@
+* {
+  margin: 0;
+  padding: 0;
+  box-sizing: border-box;
+}
+
+body {
+  font-family: "Segoe UI", Tahoma, Geneva, Verdana, sans-serif;
+  background: linear-gradient(135deg, #1d1612, #3a2b23);
+  color: #f7f2ec;
+  min-height: 100vh;
+  padding: 40px 20px;
+}
+
+.container {
+  max-width: 1100px;
+  margin: auto;
+}
+
+header {
+  text-align: center;
+  margin-bottom: 40px;
+}
+
+header h1 {
+  font-size: 2.6rem;
+  color: #f5d7a1;
+  margin-bottom: 10px;
+}
+
+header p {
+  color: #d7c2b2;
+}
+
+.editor-grid {
+  display: grid;
+  grid-template-columns: repeat(2, 1fr);
+  gap: 24px;
+  margin-bottom: 24px;
+}
+
+.editor {
+  background: #33241d;
+  border: 1px solid #5a4133;
+  border-radius: 18px;
+  padding: 24px;
+  box-shadow: 0 12px 30px rgba(0, 0, 0, 0.35);
+}
+
+label {
+  display: block;
+  margin-bottom: 12px;
+  color: #f5d7a1;
+  font-weight: 600;
+}
+
+textarea {
+  width: 100%;
+  min-height: 300px;
+  resize: vertical;
+
+  padding: 16px;
+
+  background: #231813;
+  color: #f7f2ec;
+
+  border: 1px solid #6b4d3b;
+  border-radius: 12px;
+
+  outline: none;
+
+  font-size: 15px;
+  line-height: 1.6;
+
+  transition: 0.2s;
+}
+
+textarea:focus {
+  border-color: #c98b5c;
+  box-shadow: 0 0 0 3px rgba(201, 139, 92, 0.2);
+}
+
+textarea::placeholder {
+  color: #9d887a;
+}
+
+.toolbar {
+  display: flex;
+  justify-content: center;
+  gap: 14px;
+  flex-wrap: wrap;
+  margin-bottom: 24px;
+}
+
+button {
+  background: #8b5e3c;
+  color: white;
+
+  border: none;
+  border-radius: 10px;
+
+  padding: 12px 22px;
+
+  font-size: 0.95rem;
+  font-weight: 600;
+
+  cursor: pointer;
+
+  transition: 0.25s;
+}
+
+button:hover {
+  background: #a87048;
+  transform: translateY(-2px);
+}
+
+button:active {
+  transform: scale(0.97);
+}
+
+.card {
+  background: #33241d;
+  border: 1px solid #5a4133;
+  border-radius: 18px;
+  padding: 24px;
+  box-shadow: 0 12px 30px rgba(0, 0, 0, 0.35);
+}
+
+.speed-header {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  margin-bottom: 18px;
+}
+
+.speed-header span {
+  color: #f5d7a1;
+  font-weight: bold;
+}
+
+input[type="range"] {
+  width: 100%;
+  accent-color: #b6784d;
+  cursor: pointer;
+}
+
+@media (max-width: 850px) {
+  body {
+    padding: 20px 15px;
+  }
+
+  header h1 {
+    font-size: 2rem;
+  }
+
+  .editor-grid {
+    grid-template-columns: 1fr;
+  }
+
+  textarea {
+    min-height: 220px;
+  }
+
+  .toolbar {
+    flex-direction: column;
+  }
+
+  .toolbar button {
+    width: 100%;
+  }
+}

@@ -1,0 +1,69 @@
+<!doctype html>
+<html lang="en">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>Morse Code Studio</title>
+    <link rel="stylesheet" href="style.css" />
+    <link rel="icon" href="data:," />
+  </head>
+  <body>
+    <div class="container">
+      <header>
+        <h1>📡 Morse Code Studio</h1>
+        <p>Encode text, decode Morse code, and play Morse audio.</p>
+      </header>
+
+      <!-- Editors -->
+      <div class="editor-grid">
+        <div class="editor">
+          <label for="textInput"> Plain Text </label>
+
+          <textarea id="inputText" placeholder="Enter plain text..."></textarea>
+        </div>
+
+        <div class="editor">
+          <label for="morseOutput"> Morse Code </label>
+
+          <textarea
+            id="outputText"
+            placeholder="Enter Morse code..."
+          ></textarea>
+        </div>
+      </div>
+
+      <!-- Main Toolbar -->
+      <div class="toolbar">
+        <button id="encodeBtn">Encode -></button>
+
+        <button id="decodeBtn"><- Decode</button>
+
+        <button id="playBtn">▶ Play</button>
+
+        <button id="copyBtn">📋 Copy</button>
+
+        <button id="clearBtn">🗑 Clear</button>
+      </div>
+
+      <!-- Playback Speed -->
+      <section class="card">
+        <div class="speed-header">
+          <label for="speedSlider"> Playback Speed </label>
+
+          <span id="speedValue"> 150 ms </span>
+        </div>
+
+        <input
+          type="range"
+          id="speedSlider"
+          min="50"
+          max="400"
+          value="150"
+          step="10"
+        />
+      </section>
+    </div>
+
+    <script src="script.js"></script>
+  </body>
+</html>
