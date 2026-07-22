@@ -1,14 +1,36 @@
 <!DOCTYPE html>
-<html lang="en" >
+<html lang="en">
 <head>
   <meta charset="UTF-8">
   <title>Cannon Shooting</title>
   <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/meyer-reset/2.0/reset.min.css">
-<link rel="stylesheet" href="./style.css">
-
+  <link rel="stylesheet" href="./style.css">
 </head>
 <body>
-<!-- partial:index.partial.html -->
+
+<div class="hud-banner">
+  <div class="hud-item">
+    <span class="hud-label">SCORE</span>
+    <span class="hud-value" id="hud-score">0</span>
+  </div>
+  <div class="hud-item">
+    <span class="hud-label">HIGH SCORE</span>
+    <span class="hud-value" id="hud-high-score">0</span>
+  </div>
+  <div class="hud-item">
+    <span class="hud-label">STREAK</span>
+    <span class="hud-value" id="hud-streak">0🔥</span>
+  </div>
+  <div class="hud-item">
+    <span class="hud-label">BEST STREAK</span>
+    <span class="hud-value" id="hud-best-streak">0</span>
+  </div>
+  <div class="hud-item">
+    <span class="hud-label">ACCURACY</span>
+    <span class="hud-value" id="hud-accuracy">100%</span>
+  </div>
+</div>
+
 <div class="game-wrapper">
   <div class="countdown">10</div>
   <div class="game-container">
@@ -83,9 +105,11 @@
     </div>
   </div>
 </div>
-<!-- partial -->
+
   <script src='https://cdnjs.cloudflare.com/ajax/libs/jquery/3.4.1/jquery.min.js'></script>
   <script src="../../../src/components/ui/BackToHome/BackToHome.js" defer></script>
+  <script src="./cannonEngine.js"></script>
+  <script src="./cannonStorage.js"></script>
   <script src="./script.js"></script>
 
 </body>

@@ -338,3 +338,40 @@
       left: 5px;
     }
   }
+
+  .hud-banner {
+    position: absolute;
+    top: 15px;
+    left: 50%;
+    transform: translateX(-50%);
+    z-index: 1000;
+    display: flex;
+    gap: 20px;
+    background: rgba(18, 18, 30, 0.85);
+    backdrop-filter: blur(8px);
+    padding: 10px 24px;
+    border-radius: 30px;
+    border: 1px solid rgba(255, 255, 255, 0.15);
+    box-shadow: 0 8px 32px rgba(0, 0, 0, 0.4);
+  }
+
+  .hud-item {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+  }
+
+  .hud-label {
+    font-size: 10px;
+    font-weight: 700;
+    color: #8a8a9e;
+    letter-spacing: 1px;
+    margin-bottom: 2px;
+  }
+
+  .hud-value {
+    font-size: 16px;
+    font-weight: 800;
+    color: #4cd137;
+    font-family: 'Outfit', sans-serif;
+  }
