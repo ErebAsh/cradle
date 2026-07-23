@@ -25,28 +25,36 @@ const presetSelector = document.getElementById('preset-selector');
 const assemblyInput = document.getElementById('assembly-input');
 
 const PRESETS = {
-    default: `; Write 8-bit Assembly code here...
-MOV A, 5       ; Load 5 into Register A
-MOV B, 3       ; Load 3 into Register B
-ADD A, B       ; Add B to A (A = A + B)
-HALT           ; Terminate execution loop`,
-    bitwise: `; Bitwise logic operations
-MOV A, 12      ; 00001100
-MOV B, 10      ; 00001010
-AND A, B       ; Result: 8 (00001000)
-OR A, B        ; Result: 10 (00001010)
-XOR A, B       ; Bitwise XOR
+    counter: `; Counter
+; Loops from 10 down to 0, storing each value in RAM
+MOV A, 10
+; loop (addr 3):
+MOV [15], A
+DEC A
+JNZ 3
 HALT`,
-    memory: `; Load and store from 16-byte RAM
-MOV A, 42      ; Immediate 42
-MOV [5], A     ; Store 42 at RAM address 0x5
-MOV B, [5]     ; Read address 0x5 into Reg B
+    fibonacci: `; Fibonacci
+; Generates Fibonacci numbers in registers A and B
+MOV A, 0
+MOV B, 1
+; A = A+B, B = B+A generates sequence
+ADD A, B
+ADD B, A
+JMP 6`,
+    memcpy: `; Memory Copy
+; Copies RAM [0-1] to [14-15]
+MOV A, [0]
+MOV [14], A
+MOV A, [1]
+MOV [15], A
 HALT`,
-    incdec: `; Increment and Decrement operations
-MOV C, 1
-INC C          ; C = 2
-INC C          ; C = 3
-DEC C          ; C = 2
+    cond: `; Conditional Logic
+; Demonstrates CMP and JZ instructions
+MOV A, 5
+MOV B, 5
+CMP A, B
+JZ 13
+INC C
 HALT`
 };
 
@@ -300,6 +308,12 @@ function exStage(animations) {
                 cpu.flags.Z = exReg.aluResult === 0 ? 1 : 0;
                 animations.push(animateDataFlow(getRegElementId(idReg.srcReg1), getRegElementId(idReg.destReg)));
                 break;
+            case OPCODES.CMP:
+                exReg.aluResult = fwdVal1 - fwdVal2;
+                cpu.flags.C = exReg.aluResult < 0 ? 1 : 0;
+                const temp = (exReg.aluResult < 0 ? exReg.aluResult + 256 : exReg.aluResult) & 0xFF;
+                cpu.flags.Z = temp === 0 ? 1 : 0;
+                break;
             case OPCODES.AND:
                 exReg.aluResult = (fwdVal1 & fwdVal2) & 0xFF;
                 cpu.flags.Z = exReg.aluResult === 0 ? 1 : 0;
@@ -348,6 +362,10 @@ function exStage(animations) {
                 break;
             case OPCODES.JNZ:
                 exReg.branchTaken = cpu.flags.Z === 0;
+                exReg.branchTarget = idReg.addr;
+                break;
+            case OPCODES.JZ:
+                exReg.branchTaken = cpu.flags.Z === 1;
                 exReg.branchTarget = idReg.addr;
                 break;
         }
@@ -408,12 +426,13 @@ function idStage() {
             case OPCODES.AND:
             case OPCODES.OR:
             case OPCODES.XOR:
+            case OPCODES.CMP:
                 idReg.destReg = destRegStr;
                 idReg.srcReg1 = destRegStr;
                 idReg.srcReg2 = srcRegStr;
                 idReg.val1 = cpu.registers[destRegStr];
                 idReg.val2 = cpu.registers[srcRegStr];
-                idReg.writeReg = true;
+                idReg.writeReg = opcode !== OPCODES.CMP;
                 break;
             case OPCODES.NOT:
             case OPCODES.INC:
@@ -425,6 +444,7 @@ function idStage() {
                 break;
             case OPCODES.JMP:
             case OPCODES.JNZ:
+            case OPCODES.JZ:
                 idReg.branch = true;
                 idReg.addr = ifReg.byte1;
                 break;
@@ -468,7 +488,7 @@ function ifStage() {
 
     let instrStr = mnemonic;
     if (len === 2) {
-        if (opcode === OPCODES.JMP || opcode === OPCODES.JNZ) {
+        if (opcode === OPCODES.JMP || opcode === OPCODES.JNZ || opcode === OPCODES.JZ) {
             instrStr += ` 0x${byte1.toString(16).toUpperCase()}`;
         } else {
             instrStr += ` ${String.fromCharCode(byte1)}`;
@@ -487,7 +507,7 @@ function ifStage() {
         instrStr: instrStr
     };
 
-    if (opcode === OPCODES.JMP || opcode === OPCODES.JNZ) {
+    if (opcode === OPCODES.JMP || opcode === OPCODES.JNZ || opcode === OPCODES.JZ) {
         let predictedTaken = byte1 < cpu.PC;
         if (predictedTaken) {
             cpu.PC = byte1;

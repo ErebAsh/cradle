@@ -60,7 +60,7 @@ function assembleCode(sourceCode, ramTarget) {
                 ramTarget[memoryWritePtr++] = target.charCodeAt(0);
                 ramTarget[memoryWritePtr++] = val & 0xFF;
             }
-        } else if (['ADD', 'SUB', 'AND', 'OR', 'XOR'].includes(operation)) {
+        } else if (['ADD', 'SUB', 'AND', 'OR', 'XOR', 'CMP'].includes(operation)) {
             if (parts.length < 3) throw new Error(`Line ${lineNum}: ${operation} requires 2 register operands.`);
             const regDest = parts[1].toUpperCase();
             const regSrc = parts[2].toUpperCase();
@@ -76,7 +76,7 @@ function assembleCode(sourceCode, ramTarget) {
             if (!VALID_REGS.includes(regDest)) throw new Error(`Line ${lineNum}: Invalid register for ${operation}.`);
             ramTarget[memoryWritePtr++] = OPCODES[operation];
             ramTarget[memoryWritePtr++] = regDest.charCodeAt(0);
-        } else if (operation === 'JMP' || operation === 'JNZ') {
+        } else if (operation === 'JMP' || operation === 'JNZ' || operation === 'JZ') {
             if (parts.length < 2) throw new Error(`Line ${lineNum}: ${operation} requires a target address.`);
             const targetAddr = parseInt(parts[1]);
             if (isNaN(targetAddr) || targetAddr < 0 || targetAddr > 15) {

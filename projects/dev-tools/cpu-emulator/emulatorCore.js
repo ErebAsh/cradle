@@ -14,7 +14,9 @@ const OPCODES = {
     XOR: 0x0B,          // Bitwise XOR
     NOT: 0x0C,          // Bitwise NOT
     INC: 0x0D,          // Increment Register
-    DEC: 0x0E           // Decrement Register
+    DEC: 0x0E,          // Decrement Register
+    JZ: 0x0F,           // Jump if Zero
+    CMP: 0x10           // Compare Registers
 };
 
 function createCPUState() {
@@ -37,7 +39,7 @@ function getOpcodeMnemonic(opcode) {
 function getInstructionLength(opcode) {
     if (opcode === OPCODES.HALT) return 1;
     if (opcode === OPCODES.NOT || opcode === OPCODES.INC || opcode === OPCODES.DEC) return 2;
-    if (opcode === OPCODES.JMP || opcode === OPCODES.JNZ) return 2;
+    if (opcode === OPCODES.JMP || opcode === OPCODES.JNZ || opcode === OPCODES.JZ) return 2;
     return 3; // Default for 3-byte instructions like MOV, ADD, SUB, AND, OR, XOR
 }
 
@@ -139,6 +141,20 @@ function executeSingleInstruction(cpuState, opcode, byte1, byte2) {
             if (cpuState.flags.Z === 0) {
                 cpuState.PC = byte1 & 0x0F;
                 return;
+            }
+            break;
+        case OPCODES.JZ:
+            if (cpuState.flags.Z === 1) {
+                cpuState.PC = byte1 & 0x0F;
+                return;
+            }
+            break;
+        case OPCODES.CMP:
+            if (destRegStr && srcRegStr) {
+                const diff = cpuState.registers[destRegStr] - cpuState.registers[srcRegStr];
+                cpuState.flags.C = diff < 0 ? 1 : 0;
+                const temp = (diff < 0 ? diff + 256 : diff) & 0xFF;
+                cpuState.flags.Z = temp === 0 ? 1 : 0;
             }
             break;
     }
